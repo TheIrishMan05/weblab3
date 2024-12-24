@@ -146,12 +146,21 @@ function handleImageClick(canvas, event) {
 }
 
 function manageData() {
-    if (validateX() && validateY() && validateR()) {
+    if (validateX() && validateY() && validateR() && value_X <= value_R && value_Y <= value_R) {
         drawPoint(value_X, value_Y, value_R);
+    } else if (value_X > value_R || value_Y > value_R){
+        document.getElementById("result-text").innerText = "Point won't be depicted. It's out of plot";
+        document.getElementById("result-text").classList.add("errorStub");
+        document.getElementById("result-text").style.display = "flex";
+        setTimeout(() => {
+            document.getElementById("result-text").style.display = "none";
+            document.getElementById("result-text").classList
+                .remove(...document.getElementById("result-text").classList);
+        }, 1000);
     } else {
         document.getElementById("result-text").innerText = "Some of parameters(X, Y, R) are invalid." +
             "\nMake sure that input data is correct and try again.";
-        document.getElementById("result-text").classList.add("errorStub");
+        document.getElementById("result-text").classList.add("warningStub");
         document.getElementById("result-text").style.display = "flex";
         setTimeout(() => {
             document.getElementById("result-text").style.display = "none";
@@ -162,9 +171,30 @@ function manageData() {
 }
 
 function checkPoint(x, y, r){
-
-
+    if(x <= 0 && y <= 0) {
+        return checkRectangle(x, y, r);
+    } else if(x > 0 && y < 0) {
+        return checkTriangle(x, y, r)
+    } else if(x < 0 && y < 0) {
+        return checkCircle(x, y, r);
+    } else {
+        return false;
+    }
 }
+
+function checkRectangle(x, y, r){
+    return x >= -r / 2 && -y <= r
+}
+
+function checkCircle(x, y, r){
+    return x ** 2 + y ** 2 <= (-r) ** 2
+}
+
+function checkTriangle(x, y, r){
+    return x <= r && y >= -r && -x + r <= y
+}
+
+
 
 function drawPoint(x, y, r) {
     const scale = 30 * r;
