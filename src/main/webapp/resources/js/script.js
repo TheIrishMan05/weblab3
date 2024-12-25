@@ -183,15 +183,15 @@ function checkPoint(x, y, r){
 }
 
 function checkRectangle(x, y, r){
-    return x >= -r / 2 && -y <= r
+    return x >= (-r) / 2 && -y <= r
 }
 
 function checkCircle(x, y, r){
-    return x ** 2 + y ** 2 <= (-r) ** 2
+    return x ** 2 + y ** 2 <= (-r) ** 2;
 }
 
 function checkTriangle(x, y, r){
-    return x <= r && y >= -r && -x + r <= y
+    return x <= r && y >= (-r) && (-x) + r <= y;
 }
 
 
