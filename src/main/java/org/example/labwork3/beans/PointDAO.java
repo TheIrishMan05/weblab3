@@ -21,7 +21,7 @@ import java.util.List;
 
 @Getter
 @Setter
-@Named("pointBean")
+@Named
 @SessionScoped
 public class PointDAO implements Serializable {
     private double x = 0;

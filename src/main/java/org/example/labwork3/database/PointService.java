@@ -34,7 +34,7 @@ public class PointService implements Repository<Point>, Serializable {
                     point.setX(resultSet.getDouble("x"));
                     point.setY(resultSet.getDouble("y"));
                     point.setR(resultSet.getDouble("r"));
-                    point.setHit(resultSet.getBoolean("is_hit"));
+                    point.setHit(resultSet.getInt("is_hit") == 1);
                     point.setTime(resultSet.getString("time"));
                     point.setExecutionTime(resultSet.getLong("execution_time"));
                     point.setSessionId(resultSet.getString("session_id"));
@@ -91,7 +91,7 @@ public class PointService implements Repository<Point>, Serializable {
                        x NUMBER NOT NULL,
                        y NUMBER NOT NULL,
                        r NUMBER NOT NULL,
-                       is_hit CHAR(1) NOT NULL CHECK(is_hit in (0, 1)),
+                       is_hit NUMBER(1) NOT NULL CHECK(is_hit in (0, 1)),
                        time VARCHAR(255) NOT NULL,
                        execution_time NUMBER NOT NULL,
                        session_id VARCHAR(50))

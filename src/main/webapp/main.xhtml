@@ -38,25 +38,25 @@
             <h:form>
                 <div class="params-input">
                     <p:outputLabel for="x-spinner" value="Выберите X:"/>
-                    <p:spinner id="x-spinner" value="#{pointBean.x}" min="-5" max="5" step="1">
-                        <p:ajax event="change" listener="#{pointBean.setX}" oncomplete="setValueX('#{pointBean.x}')" />
+                    <p:spinner id="x-spinner" value="#{pointDAO.x}" min="-5" max="5" step="1">
+                        <p:ajax event="change" listener="#{pointDAO.setX}" oncomplete="setValueX('#{pointDAO.x}')" />
                     </p:spinner>
                 </div>
                 <div class="params-input">
                     <p:outputLabel for="y-input" value="Введите Y:"/>
-                    <p:inputText id="y-input" placeholder="не менее -3 и не более 5" class="input" value="#{pointBean.y}">
+                    <p:inputText id="y-input" placeholder="не менее -3 и не более 5" class="input" value="#{pointDAO.y}">
                         <f:validateDoubleRange minimum="-3" maximum="5"/>
-                        <p:ajax event="change" listener="#{pointBean.setY}" oncomplete="setValueY(#{pointBean.y})" />
+                        <p:ajax event="change" listener="#{pointDAO.setY}" oncomplete="setValueY(#{pointDAO.y})" />
                     </p:inputText>
                 </div>
                 <div class="params-input">
                     <p:outputLabel for="r-slider" value="Выберите R:"/>
-                    <p:slider id="r-slider" value="#{pointBean.r}" min="2" max="5" step="0.1">
-                        <p:ajax event="change" listener="#{pointBean.setR}" oncomplete="setValueR(#{pointBean.r})" />
+                    <p:slider id="r-slider" value="#{pointDAO.r}" min="2" max="5" step="0.1">
+                        <p:ajax event="change" listener="#{pointDAO.setR}" oncomplete="setValueR(#{pointDAO.r})" />
                     </p:slider>
                 </div>
                 <div>
-                    <h:commandButton onclick="manageData()" action="#{pointBean.checkPoint()}" value="Проверить данные" styleClass="button"/>
+                    <h:commandButton onclick="manageData()" action="#{pointDAO.checkPoint()}" value="Проверить данные" styleClass="button"/>
                     <h:commandButton action="#{navigationBean.goToHome()}" value="На начальную" styleClass="button"/>
                 </div>
                 <div id="result-text"></div>
