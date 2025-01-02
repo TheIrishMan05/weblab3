@@ -1,7 +1,7 @@
 <tomee>
     <Resource id="OracleDatabase" type="DataSource">
         JdbcDriver = oracle.jdbc.OracleDriver
-        JdbcUrl = jdbc:oracle:thin:@//db:5913/FREE
+        JdbcUrl = jdbc:oracle:thin:@//db:1521/FREE
         UserName = SYSTEM
         Password = Oracle_123
         JtaManaged = false

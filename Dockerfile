@@ -6,7 +6,7 @@ COPY build/libs/labwork3-1.0-SNAPSHOT.war /usr/local/tomee/webapps/
 
 ENV HOSTNAME=SYSTEM
 ENV PASSOWORD=Oracle_123
-ENV URL=jdbc:oracle:thin:@//db:5913/FREE
+ENV URL=jdbc:oracle:thin:@//db:1521/FREE
 
 COPY src/main/resources/META-INF/tomee.xml /usr/local/tomee/conf/
 COPY src/main/resources/META-INF/context.xml /usr/local/tomee/conf/
