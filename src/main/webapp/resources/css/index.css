@@ -131,6 +131,7 @@ body {
     left: 0;
     right: 0;
 }
+
 .page {
     width: 100%;
 }
@@ -143,7 +144,7 @@ body {
     justify-content: space-around;
 }
 
-.clock-container p{
+.clock-container p {
     font-size: 40px;
 }
 

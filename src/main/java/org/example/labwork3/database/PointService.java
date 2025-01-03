@@ -28,13 +28,34 @@ public class PointService implements Repository<Point>, Serializable {
         createTable();
     }
 
+    private static void createTable() {
+        try (Connection connection = DriverManager.getConnection(DB_URL, USER, PASSWORD);
+             Statement statement = connection.createStatement()) {
+            String createQuery = """
+                       CREATE TABLE points (
+                       id NUMBER PRIMARY KEY,
+                       x NUMBER NOT NULL,
+                       y NUMBER NOT NULL,
+                       r NUMBER NOT NULL,
+                       is_hit NUMBER(1) NOT NULL CHECK(is_hit in (0, 1)),
+                       time VARCHAR(255) NOT NULL,
+                       execution_time NUMBER NOT NULL,
+                       session_id VARCHAR(50))
+                    """;
+            statement.execute(createQuery);
+        } catch (SQLException exception) {
+            log.error(exception);
+        }
+    }
+
     @Override
     public List<Point> findBySessionId(String sessionId) {
         List<Point> points = new ArrayList<>();
+        String selectByIdQuery = "SELECT * FROM points WHERE session_id = ?";
         try (Connection connection = DriverManager.getConnection(DB_URL, USER, PASSWORD);
-             Statement statement = connection.createStatement()) {
-            String selectByIdQuery = String.format("SELECT * FROM points WHERE session_id = %s", sessionId);
-            try(ResultSet resultSet = statement.executeQuery(selectByIdQuery)) {
+             PreparedStatement statement = connection.prepareStatement(selectByIdQuery)) {
+            statement.setString(1, sessionId);
+            try (ResultSet resultSet = statement.executeQuery(selectByIdQuery)) {
                 while (resultSet.next()) {
                     Point point = new Point();
                     point.setId(resultSet.getInt("id"));
@@ -60,11 +81,15 @@ public class PointService implements Repository<Point>, Serializable {
         try {
             connection = DriverManager.getConnection(DB_URL, USER, PASSWORD);
             connection.setAutoCommit(false);
-
-            try (Statement statement = connection.createStatement()) {
-                String insertQuery = String.format("INSERT INTO points (x, y, r, is_hit, time, execution_time, session_id) VALUES (%f, %f, %f, %d, %s, %d, %s)",
-                        point.getX(), point.getY(), point.getR(),
-                        point.isHit() ? 1 : 0, point.getTime(), point.getExecutionTime(), point.getSessionId());
+            String insertQuery = "INSERT INTO points (x, y, r, is_hit, time, execution_time, session_id) VALUES (?, ?, ?, ?, ?, ?, ?)";
+            try (PreparedStatement statement = connection.prepareStatement(insertQuery)) {
+                statement.setDouble(1, point.getX());
+                statement.setDouble(2, point.getY());
+                statement.setDouble(3, point.getR());
+                statement.setInt(4, point.isHit() ? 1 : 0);
+                statement.setString(5, point.getTime());
+                statement.setLong(6, point.getExecutionTime());
+                statement.setString(7, point.getSessionId());
                 statement.execute(insertQuery);
             }
             connection.commit();
@@ -86,26 +111,6 @@ public class PointService implements Repository<Point>, Serializable {
                     log.error(e);
                 }
             }
-        }
-    }
-
-    private static void createTable() {
-        try (Connection connection = DriverManager.getConnection(DB_URL, USER, PASSWORD);
-             Statement statement = connection.createStatement()) {
-            String createQuery = """
-                       CREATE TABLE points (
-                       id NUMBER PRIMARY KEY,
-                       x NUMBER NOT NULL,
-                       y NUMBER NOT NULL,
-                       r NUMBER NOT NULL,
-                       is_hit NUMBER(1) NOT NULL CHECK(is_hit in (0, 1)),
-                       time VARCHAR(255) NOT NULL,
-                       execution_time NUMBER NOT NULL,
-                       session_id VARCHAR(50))
-                    """;
-            statement.execute(createQuery);
-        } catch (SQLException exception) {
-            log.error(exception);
         }
     }
 }

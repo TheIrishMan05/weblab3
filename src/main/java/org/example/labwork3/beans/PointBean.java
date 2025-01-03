@@ -23,7 +23,11 @@ import java.util.List;
 @Setter
 @Named
 @ViewScoped
-public class PointDAO implements Serializable {
+public class PointBean implements Serializable {
+    @Inject
+    AreaChecker checker;
+    @Inject
+    PointService service;
     private double x = 0;
     private double y = 0;
     private double r = 2;
@@ -31,16 +35,11 @@ public class PointDAO implements Serializable {
     private Point point;
     private LocalDateTime time;
     private String sessionId;
-    @Inject
-    AreaChecker checker;
-
-    @Inject
-    PointService service;
 
     @PostConstruct
     public void init() {
         HttpSession session = getSession();
-        if(session != null) {
+        if (session != null) {
             sessionId = session.getId();
         }
         points = service.findBySessionId(sessionId);
@@ -79,8 +78,6 @@ public class PointDAO implements Serializable {
             return null;
         }
     }
-
-
 
 
 }

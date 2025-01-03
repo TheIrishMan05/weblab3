@@ -1,7 +1,7 @@
 let value_X, value_Y, value_R;
 const CANVAS = document.getElementById("myCanvas");
 const CTX = CANVAS.getContext("2d");
-CANVAS.addEventListener("click",  (event) => handleImageClick(CANVAS, event))
+CANVAS.addEventListener("click", (event) => handleImageClick(CANVAS, event))
 
 function setValueX(value) {
     value_X = value;
@@ -148,7 +148,7 @@ function handleImageClick(canvas, event) {
 function manageData() {
     if (validateX() && validateY() && validateR() && value_X <= value_R && value_Y <= value_R) {
         drawPoint(value_X, value_Y, value_R);
-    } else if (value_X > value_R || value_Y > value_R){
+    } else if (value_X > value_R || value_Y > value_R) {
         document.getElementById("result-text").innerText = "Point won't be depicted. It's out of plot";
         document.getElementById("result-text").classList.add("errorStub");
         document.getElementById("result-text").style.display = "flex";
@@ -170,30 +170,29 @@ function manageData() {
     }
 }
 
-function checkPoint(x, y, r){
-    if(x <= 0 && y <= 0) {
+function checkPoint(x, y, r) {
+    if (x <= 0 && y <= 0) {
         return checkRectangle(x, y, r);
-    } else if(x > 0 && y < 0) {
+    } else if (x > 0 && y < 0) {
         return checkTriangle(x, y, r)
-    } else if(x < 0 && y < 0) {
+    } else if (x < 0 && y < 0) {
         return checkCircle(x, y, r);
     } else {
         return false;
     }
 }
 
-function checkRectangle(x, y, r){
+function checkRectangle(x, y, r) {
     return x >= (-r) / 2 && -y <= r
 }
 
-function checkCircle(x, y, r){
+function checkCircle(x, y, r) {
     return x ** 2 + y ** 2 <= (-r) ** 2;
 }
 
-function checkTriangle(x, y, r){
+function checkTriangle(x, y, r) {
     return x <= r && y >= (-r) && (-x) + r <= y;
 }
-
 
 
 function drawPoint(x, y, r) {
@@ -202,7 +201,7 @@ function drawPoint(x, y, r) {
     const center_Y = CANVAS.height / 2;
     const dot_X = center_X + (x / (r * 1.75)) * scale;
     const dot_Y = center_Y - (y / (r * 1.75)) * scale;
-    if(checkPoint(x, y, r)){
+    if (checkPoint(x, y, r)) {
         CTX.fillStyle = "green";
     } else {
         CTX.fillStyle = "red";

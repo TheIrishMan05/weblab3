@@ -1,7 +1,6 @@
 package org.example.labwork3.check;
 
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.enterprise.context.SessionScoped;
 import org.example.labwork3.models.Point;
 
 import java.io.Serializable;
