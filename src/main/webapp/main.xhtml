@@ -57,7 +57,7 @@
                 </div>
                 <div>
                     <h:commandButton onclick="manageData()" action="#{pointDAO.checkPoint()}" value="Проверить данные" styleClass="button"/>
-                    <h:commandButton action="#{navigationBean.goToHome()}" value="На начальную" styleClass="button"/>
+                    <h:commandButton id="go-to-index" action="go-to-index" value="На начальную" styleClass="button"/>
                 </div>
                 <div id="result-text"></div>
             </h:form>

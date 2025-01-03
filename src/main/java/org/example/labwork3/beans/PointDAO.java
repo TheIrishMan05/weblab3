@@ -1,8 +1,8 @@
 package org.example.labwork3.beans;
 
 import jakarta.annotation.PostConstruct;
-import jakarta.enterprise.context.SessionScoped;
 import jakarta.faces.context.FacesContext;
+import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import jakarta.servlet.http.HttpSession;
@@ -22,7 +22,7 @@ import java.util.List;
 @Getter
 @Setter
 @Named
-@SessionScoped
+@ViewScoped
 public class PointDAO implements Serializable {
     private double x = 0;
     private double y = 0;

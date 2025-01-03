@@ -15,17 +15,24 @@ import java.util.List;
 @ApplicationScoped
 public class PointService implements Repository<Point>, Serializable {
 
+    private static final String USER = "SYSTEM";
+    private static final String PASSWORD = "Oracle_123";
+    private static final String DB_URL = "jdbc:oracle:thin:@//db:1521/FREE";
+
     static {
-        log.info("Добро пожаловать! Сейчас будет создана таблица для точек.");
+        try {
+            Class.forName("oracle.jdbc.OracleDriver");
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
         createTable();
-        log.info("Таблица создана! Можно начать работу.");
     }
 
     @Override
     public List<Point> findBySessionId(String sessionId) {
         List<Point> points = new ArrayList<>();
-        Connection connection = DatabaseManager.getInstance().getConnection();
-        try (Statement statement = connection.createStatement()) {
+        try (Connection connection = DriverManager.getConnection(DB_URL, USER, PASSWORD);
+             Statement statement = connection.createStatement()) {
             String selectByIdQuery = String.format("SELECT * FROM points WHERE session_id = %s", sessionId);
             try(ResultSet resultSet = statement.executeQuery(selectByIdQuery)) {
                 while (resultSet.next()) {
@@ -51,7 +58,7 @@ public class PointService implements Repository<Point>, Serializable {
     public void insert(Point point) {
         Connection connection = null;
         try {
-            connection = DatabaseManager.getInstance().getConnection();
+            connection = DriverManager.getConnection(DB_URL, USER, PASSWORD);
             connection.setAutoCommit(false);
 
             try (Statement statement = connection.createStatement()) {
@@ -83,8 +90,8 @@ public class PointService implements Repository<Point>, Serializable {
     }
 
     private static void createTable() {
-        Connection connection = DatabaseManager.getInstance().getConnection();
-        try (Statement statement = connection.createStatement()) {
+        try (Connection connection = DriverManager.getConnection(DB_URL, USER, PASSWORD);
+             Statement statement = connection.createStatement()) {
             String createQuery = """
                        CREATE TABLE points (
                        id NUMBER PRIMARY KEY,
