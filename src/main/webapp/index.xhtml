@@ -30,15 +30,17 @@
                 </div>
             </div>
         </div>
-        <h:panelGroup layout="block" styleClass="clock-container">
-            <h:panelGroup layout="block" styleClass="time">
-                <p>Текущее время:</p>
-                <h:outputText value="#{timeBean.currentTime}" id="clock"/>
+        <div id="page-container">
+            <h:panelGroup layout="block" styleClass="clock-container">
+                <h:panelGroup layout="block" styleClass="time">
+                        <p>Текущее время:</p>
+                    <h:outputText value="#{timeBean.currentTime}" id="clock"/>
+                </h:panelGroup>
             </h:panelGroup>
-        </h:panelGroup>
-        <h:form>
-            <h:commandButton value="На главную" id="go-to-main" action="go-to-main"/>
-        </h:form>
+            <h:form prependId="false">
+                <h:button styleClass="transfer-button" value="На главную" id="go-to-main" outcome="main.xhtml"/>
+            </h:form>
+        </div>
         <div class="footer">
             2024
         </div>

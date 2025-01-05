@@ -16,6 +16,7 @@ import org.primefaces.PrimeFaces;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -38,12 +39,16 @@ public class PointBean implements Serializable {
 
     @PostConstruct
     public void init() {
-        HttpSession session = getSession();
+        HttpSession session = getCurrentSession();
         if (session != null) {
             sessionId = session.getId();
         }
         points = service.findBySessionId(sessionId);
-        Collections.reverse(points);
+        if (points == null) {
+            points = new ArrayList<>();
+        } else {
+            Collections.reverse(points);
+        }
     }
 
     public void checkPoint() {
@@ -58,7 +63,7 @@ public class PointBean implements Serializable {
             point.setHit(checker.check(point));
             point.setTime(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
             point.setExecutionTime(System.currentTimeMillis() - time);
-            PrimeFaces.current().executeScript("drawPoint(" + point.getX() + ", " + point.getY() + ", " + point.getR() + ")");
+            PrimeFaces.current().executeScript(String.format("drawPoint(%f, %f, %f)", point.getX(), point.getY(), point.getR()));
             this.addPoint(point);
         }
     }
@@ -70,7 +75,7 @@ public class PointBean implements Serializable {
     }
 
 
-    private HttpSession getSession() {
+    private HttpSession getCurrentSession() {
         FacesContext context = FacesContext.getCurrentInstance();
         if (context != null) {
             return (HttpSession) context.getExternalContext().getSession(true);

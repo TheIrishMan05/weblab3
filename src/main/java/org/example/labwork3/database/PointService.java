@@ -31,6 +31,17 @@ public class PointService implements Repository<Point>, Serializable {
     private static void createTable() {
         try (Connection connection = DriverManager.getConnection(DB_URL, USER, PASSWORD);
              Statement statement = connection.createStatement()) {
+            String checkTableExisting = """
+                        SELECT COUNT(*) AS count
+                        FROM all_tables
+                        WHERE table_name = 'points'
+                    """;
+            try (ResultSet resultSet = statement.executeQuery(checkTableExisting)) {
+                if (resultSet.next() && resultSet.getInt("count") > 0) {
+                    log.info("Table already exists. Skipping...");
+                    return;
+                }
+            }
             String createQuery = """
                        CREATE TABLE points (
                        id NUMBER PRIMARY KEY,
@@ -54,8 +65,11 @@ public class PointService implements Repository<Point>, Serializable {
         String selectByIdQuery = "SELECT * FROM points WHERE session_id = ?";
         try (Connection connection = DriverManager.getConnection(DB_URL, USER, PASSWORD);
              PreparedStatement statement = connection.prepareStatement(selectByIdQuery)) {
+
             statement.setString(1, sessionId);
-            try (ResultSet resultSet = statement.executeQuery(selectByIdQuery)) {
+            log.info("Executing query: " + selectByIdQuery + " for session_id: " + sessionId);
+
+            try (ResultSet resultSet = statement.executeQuery()) {
                 while (resultSet.next()) {
                     Point point = new Point();
                     point.setId(resultSet.getInt("id"));
@@ -70,10 +84,11 @@ public class PointService implements Repository<Point>, Serializable {
                 }
             }
         } catch (SQLException exception) {
-            log.error(exception);
+            log.error("Error executing query: " + selectByIdQuery, exception);
         }
         return points;
     }
+
 
     @Override
     public void insert(Point point) {
@@ -81,7 +96,10 @@ public class PointService implements Repository<Point>, Serializable {
         try {
             connection = DriverManager.getConnection(DB_URL, USER, PASSWORD);
             connection.setAutoCommit(false);
-            String insertQuery = "INSERT INTO points (x, y, r, is_hit, time, execution_time, session_id) VALUES (?, ?, ?, ?, ?, ?, ?)";
+            String insertQuery = """
+            INSERT INTO points (x, y, r, is_hit, time, execution_time, session_id)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        """;
             try (PreparedStatement statement = connection.prepareStatement(insertQuery)) {
                 statement.setDouble(1, point.getX());
                 statement.setDouble(2, point.getY());
@@ -90,16 +108,16 @@ public class PointService implements Repository<Point>, Serializable {
                 statement.setString(5, point.getTime());
                 statement.setLong(6, point.getExecutionTime());
                 statement.setString(7, point.getSessionId());
-                statement.execute(insertQuery);
+                statement.executeUpdate();
             }
             connection.commit();
         } catch (SQLException exception) {
-            log.error(exception);
+            log.error("Error inserting point", exception);
             if (connection != null) {
                 try {
                     connection.rollback();
                 } catch (SQLException e) {
-                    log.error(e);
+                    log.error("Error during rollback", e);
                 }
             }
         } finally {
@@ -108,9 +126,10 @@ public class PointService implements Repository<Point>, Serializable {
                     connection.setAutoCommit(true);
                     connection.close();
                 } catch (SQLException e) {
-                    log.error(e);
+                    log.error("Error closing connection", e);
                 }
             }
         }
     }
+
 }

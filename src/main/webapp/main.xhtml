@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="http://xmlns.jcp.org/jsf/html"
@@ -36,34 +35,33 @@
         </div>
         <div id="input-container">
             <h:form>
-                <div class="params-input">
-                    <p:outputLabel for="x-spinner" value="Выберите X:"/>
-                    <p:spinner id="x-spinner" value="#{pointBean.x}" min="-5" max="5" step="1">
-                        <p:ajax event="change" listener="#{pointBean.setX}" oncomplete="setValueX('#{pointBean.x}')"/>
-                    </p:spinner>
-                </div>
-                <div class="params-input">
-                    <p:outputLabel for="y-input" value="Введите Y:"/>
-                    <p:inputText id="y-input" placeholder="не менее -3 и не более 5" class="input"
-                                 value="#{pointBean.y}">
-                        <f:validateDoubleRange minimum="-3" maximum="5"/>
-                        <p:ajax event="change" listener="#{pointBean.setY}" oncomplete="setValueY(#{pointBean.y})"/>
+            <div class="params-input">
+                <p:outputLabel for="@next" value="Значение X:"/>
+                <p:spinner value="#{pointBean.x}" min="-5" max="5" step="1"/>
+            </div>
+            <div class="params-input">
+                    <p:outputLabel for="@next" value="Значение Y:"/>
+                    <p:inputText name="input" id="y-input" placeholder="не менее -3 и не более 5"
+                                 class="input" value="#{pointBean.y}">
+                        <f:validateDoubleRange minimum="-3" maximum="5" />
                     </p:inputText>
+            </div>
+                <div class="slider-container">
+                    <p:outputLabel for="@next" value="Значение R:"/>
+                    <p:inputText id="r-slider" value="#{pointBean.r}"/>
+                    <p:slider for="r-slider" styleClass="custom-slider" minValue="2" maxValue="5" step="0.1" range="max"/>
                 </div>
-                <div class="params-input">
-                    <p:outputLabel for="r-slider" value="Выберите R:"/>
-                    <p:slider id="r-slider" value="#{pointBean.r}" min="2" max="5" step="0.1">
-                        <p:ajax event="change" listener="#{pointBean.setR}" oncomplete="setValueR(#{pointBean.r})"/>
-                    </p:slider>
+                <div class="button-container">
+                    <h:button action="#{pointBean.checkPoint()}" value="Проверить"
+                              styleClass="check-button"/>
+                    <h:button id="go-to-index" outcome="index.html" value="На начальную" styleClass="button"/>
                 </div>
-                <div>
-                    <h:commandButton onclick="manageData()" action="#{pointBean.checkPoint()}" value="Проверить данные"
-                                     styleClass="button"/>
-                    <h:commandButton id="go-to-index" action="go-to-index" value="На начальную" styleClass="button"/>
-                </div>
-                <div id="result-text"></div>
             </h:form>
+            <div id="canvas-container">
+                <canvas height="350px" id="myCanvas" width="350px"></canvas>
+            </div>
         </div>
+
         <div class="footer">
             2024
         </div>

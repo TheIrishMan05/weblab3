@@ -2,16 +2,17 @@ let value_X, value_Y, value_R;
 const CANVAS = document.getElementById("myCanvas");
 const CTX = CANVAS.getContext("2d");
 CANVAS.addEventListener("click", (event) => handleImageClick(CANVAS, event))
+draw();
 
-function setValueX(value) {
+function setValueX() {
     value_X = value;
 }
 
-function setValueY(value) {
+function setValueY() {
     value_Y = value;
 }
 
-function setValueR(value) {
+function setValueR() {
     value_R = value;
     draw();
 }
@@ -142,32 +143,7 @@ function handleImageClick(canvas, event) {
     let rawY = canvas.height / 2 - (event.clientY - area.top);
     value_X = (rawX / (canvas.width / 2) * value_R * 1.75);
     value_Y = (rawY / (canvas.height / 2) * value_R * 1.75);
-    manageData()
-}
-
-function manageData() {
-    if (validateX() && validateY() && validateR() && value_X <= value_R && value_Y <= value_R) {
-        drawPoint(value_X, value_Y, value_R);
-    } else if (value_X > value_R || value_Y > value_R) {
-        document.getElementById("result-text").innerText = "Point won't be depicted. It's out of plot";
-        document.getElementById("result-text").classList.add("errorStub");
-        document.getElementById("result-text").style.display = "flex";
-        setTimeout(() => {
-            document.getElementById("result-text").style.display = "none";
-            document.getElementById("result-text").classList
-                .remove(...document.getElementById("result-text").classList);
-        }, 1000);
-    } else {
-        document.getElementById("result-text").innerText = "Some of parameters(X, Y, R) are invalid." +
-            "\nMake sure that input data is correct and try again.";
-        document.getElementById("result-text").classList.add("warningStub");
-        document.getElementById("result-text").style.display = "flex";
-        setTimeout(() => {
-            document.getElementById("result-text").style.display = "none";
-            document.getElementById("result-text").classList
-                .remove(...document.getElementById("result-text").classList);
-        }, 1000);
-    }
+    drawPoint(value_X, value_Y, value_R)
 }
 
 function checkPoint(x, y, r) {
@@ -196,19 +172,34 @@ function checkTriangle(x, y, r) {
 
 
 function drawPoint(x, y, r) {
+    value_X = x
+    value_Y = y
+    value_R = r
     const scale = 30 * r;
     const center_X = CANVAS.width / 2;
     const center_Y = CANVAS.height / 2;
     const dot_X = center_X + (x / (r * 1.75)) * scale;
     const dot_Y = center_Y - (y / (r * 1.75)) * scale;
-    if (checkPoint(x, y, r)) {
-        CTX.fillStyle = "green";
+    if (validateX() && validateY() && validateR()){
+        if (checkPoint(x, y, r)) {
+            CTX.fillStyle = "green";
+        } else {
+            CTX.fillStyle = "red";
+        }
+        CTX.beginPath();
+        CTX.arc(dot_X, dot_Y, 3, 0, 2 * Math.PI);
+        CTX.fill();
+        CTX.closePath();
     } else {
-        CTX.fillStyle = "red";
+        document.getElementById("result-text").innerText = "Some of parameters(X, Y, R) are invalid." +
+            "\nMake sure that input data is correct and try again.";
+        document.getElementById("result-text").classList.add("warningStub");
+        document.getElementById("result-text").style.display = "flex";
+        setTimeout(() => {
+            document.getElementById("result-text").style.display = "none";
+            document.getElementById("result-text").classList
+                .remove(...document.getElementById("result-text").classList);
+        }, 1000);
     }
-    CTX.beginPath();
-    CTX.arc(dot_X, dot_Y, 3, 0, 2 * Math.PI);
-    CTX.fill();
-    CTX.closePath();
 }
 
