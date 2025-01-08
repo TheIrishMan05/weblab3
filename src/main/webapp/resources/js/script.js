@@ -150,11 +150,11 @@ function handleImageClick(canvas, event) {
 }
 
 function checkPoint(x, y, r) {
-    if (x <= 0 && y <= 0) {
+    if (x <= 0 && y >= 0) {
         return checkRectangle(x, y, r);
-    } else if (x > 0 && y < 0) {
-        return checkTriangle(x, y, r)
-    } else if (x < 0 && y < 0) {
+    } else if (x >= 0 && y <= 0) {
+        return checkTriangle(x, y, r);
+    } else if (x <= 0 && y <= 0) {
         return checkCircle(x, y, r);
     } else {
         return false;
@@ -162,7 +162,7 @@ function checkPoint(x, y, r) {
 }
 
 function checkRectangle(x, y, r) {
-    return x >= (-r) / 2 && -y <= r
+    return x >= (-r / 2) && y <= r;
 }
 
 function checkCircle(x, y, r) {
@@ -170,7 +170,7 @@ function checkCircle(x, y, r) {
 }
 
 function checkTriangle(x, y, r) {
-    return (x <= r) && (y >= (-r)) && ((-x) + r <= y);
+    return x <= r && y >= -r && x - r >= y;
 }
 
 

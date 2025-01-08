@@ -42,7 +42,7 @@ public class AreaChecker implements Serializable, Checker<Point> {
     }
 
     private boolean checkCircle(Point point) {
-        if (point.getX() <= 0 && point.getY() < 0) {
+        if (point.getX() <= 0 && point.getY() <= 0) {
             return Math.pow(point.getX(), 2) + Math.pow(point.getY(), 2) <= Math.pow(-point.getR(), 2);
         } else {
             return false;
@@ -50,7 +50,7 @@ public class AreaChecker implements Serializable, Checker<Point> {
     }
 
     private boolean checkTriangle(Point point) {
-        if (point.getX() > 0 && point.getY() < 0) {
+        if (point.getX() >= 0 && point.getY() <= 0) {
             return point.getX() <= point.getR() && point.getY() >= -point.getR() && point.getX() - point.getR() >= point.getY();
         } else {
             return false;
