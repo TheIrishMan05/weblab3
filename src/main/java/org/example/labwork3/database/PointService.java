@@ -31,51 +31,73 @@ public class PointService implements Repository<Point>, Serializable {
     private static void createTable() {
         try (Connection connection = DriverManager.getConnection(DB_URL, USER, PASSWORD);
              Statement statement = connection.createStatement()) {
+
             String checkTableExisting = """
-                        SELECT COUNT(*) AS count
-                        FROM all_tables
-                        WHERE table_name = 'points'
-                    """;
+                SELECT COUNT(*) AS count
+                FROM all_tables
+                WHERE table_name = 'POINTS'
+            """;
             try (ResultSet resultSet = statement.executeQuery(checkTableExisting)) {
                 if (resultSet.next() && resultSet.getInt("count") > 0) {
                     log.info("Table already exists. Skipping...");
                     return;
                 }
             }
+
             String createQuery = """
-                   CREATE TABLE points (
-                   id NUMBER PRIMARY KEY,
-                   x NUMBER NOT NULL,
-                   y NUMBER NOT NULL,
-                   r NUMBER NOT NULL,
-                   is_hit NUMBER(1) NOT NULL CHECK(is_hit in (0, 1)),
-                   time VARCHAR(255) NOT NULL,
-                   execution_time NUMBER NOT NULL,
-                   session_id VARCHAR(50))
-                """;
+               CREATE TABLE points (
+               id NUMBER PRIMARY KEY,
+               x NUMBER NOT NULL,
+               y NUMBER NOT NULL,
+               r NUMBER NOT NULL,
+               is_hit NUMBER(1) NOT NULL CHECK(is_hit in (0, 1)),
+               time VARCHAR(255) NOT NULL,
+               execution_time NUMBER NOT NULL,
+               session_id VARCHAR(50))
+            """;
             statement.execute(createQuery);
             log.info("Table 'points' created successfully.");
 
-            String createSequence = "CREATE SEQUENCE points_seq START WITH 1 INCREMENT BY 1";
-            statement.execute(createSequence);
-            log.info("Sequence 'points_seq' created successfully.");
+            String checkSequence = """
+            SELECT COUNT(*) AS count 
+            FROM user_sequences 
+            WHERE sequence_name = 'POINTS_SEQ'
+        """;
+            try (ResultSet resultSet = statement.executeQuery(checkSequence)) {
+                if (resultSet.next() && resultSet.getInt("count") == 0) {
+                    String createSequence = "CREATE SEQUENCE points_seq START WITH 1 INCREMENT BY 1";
+                    statement.execute(createSequence);
+                    log.info("Sequence 'points_seq' created successfully.");
+                }
+            }
 
-            String createTrigger = """
-                        CREATE OR REPLACE TRIGGER points_trigger
-                        BEFORE INSERT ON points
-                        FOR EACH ROW
-                        BEGIN
-                          IF :NEW.id IS NULL THEN
-                            :NEW.id := points_seq.NEXTVAL;
-                          END IF;
-                        END;
-                        """;
-            statement.execute(createTrigger);
-            log.info("Trigger 'points_trigger' created successfully.");
+
+            String checkTrigger = """
+            SELECT COUNT(*) AS count 
+            FROM user_triggers 
+            WHERE trigger_name = 'POINTS_TRIGGER'
+        """;
+            try (ResultSet resultSet = statement.executeQuery(checkTrigger)) {
+                if (resultSet.next() && resultSet.getInt("count") == 0) {
+                    String createTrigger = """
+                    CREATE OR REPLACE TRIGGER points_trigger
+                    BEFORE INSERT ON points
+                    FOR EACH ROW
+                    BEGIN
+                      IF :NEW.id IS NULL THEN
+                        :NEW.id := points_seq.NEXTVAL;
+                      END IF;
+                    END;
+                """;
+                    statement.execute(createTrigger);
+                    log.info("Trigger 'points_trigger' created successfully.");
+                }
+            }
         } catch (SQLException exception) {
-            log.error(exception);
+            log.error("Error creating table, sequence, or trigger", exception);
         }
     }
+
 
     @Override
     public List<Point> findBySessionId(String sessionId) {
@@ -106,7 +128,6 @@ public class PointService implements Repository<Point>, Serializable {
         }
         return points;
     }
-
 
     @Override
     public void insert(Point point) {
@@ -149,5 +170,4 @@ public class PointService implements Repository<Point>, Serializable {
             }
         }
     }
-
 }

@@ -16,7 +16,6 @@ function setValueY(value) {
 
 function setValueR(value) {
     value_R = value;
-    console.log(value_R);
     draw();
 }
 
@@ -120,9 +119,7 @@ function draw() {
 }
 
 function validateX() {
-    const xRegexp = /^-?[0-5]/i
-    return value_X !== undefined && value_X !== null && !isNaN(value_X)
-        && xRegexp.test(value_X) && value_X <= 5 && value_X >= -5;
+    return value_X !== undefined && value_X !== null && !isNaN(value_X) && value_X <= 5 && value_X >= -5;
 }
 
 function validateY() {
@@ -135,9 +132,7 @@ function validateY() {
 }
 
 function validateR() {
-    const rRegexp = /^[2-4](\.\d)?$|^5(\.0)?$/
-    return value_R !== undefined && value_R !== null && !isNaN(value_R) && rRegexp.test(value_R)
-        && value_R <= 5 && value_R >= 2;
+    return value_R !== undefined && value_R !== null && !isNaN(value_R) && value_R <= 5 && value_R >= 2;
 }
 
 function handleImageClick(canvas, event) {
@@ -175,14 +170,16 @@ function checkTriangle(x, y, r) {
 
 
 function drawPoint(x, y, r) {
-    console.log(x, y, r)
+    value_X = x;
+    value_Y = y;
+    value_R = r;
     if (validateX() && validateY() && validateR()) {
-        const scale = 30 * r;
+        const scale = 30 * value_R;
         const center_X = CANVAS.width / 2;
         const center_Y = CANVAS.height / 2;
-        const dot_X = center_X + (x / (r * 1.75)) * scale;
-        const dot_Y = center_Y - (y / (r * 1.75)) * scale;
-        if (checkPoint(x, y, r)) {
+        const dot_X = center_X + (value_X / (value_R * 1.75)) * scale;
+        const dot_Y = center_Y - (value_Y / (value_R * 1.75)) * scale;
+        if (checkPoint(value_X, value_Y, value_R)) {
             CTX.fillStyle = "green";
         } else {
             CTX.fillStyle = "red";
