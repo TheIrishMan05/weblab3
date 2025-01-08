@@ -43,17 +43,35 @@ public class PointService implements Repository<Point>, Serializable {
                 }
             }
             String createQuery = """
-                       CREATE TABLE points (
-                       id NUMBER PRIMARY KEY,
-                       x NUMBER NOT NULL,
-                       y NUMBER NOT NULL,
-                       r NUMBER NOT NULL,
-                       is_hit NUMBER(1) NOT NULL CHECK(is_hit in (0, 1)),
-                       time VARCHAR(255) NOT NULL,
-                       execution_time NUMBER NOT NULL,
-                       session_id VARCHAR(50))
-                    """;
+                   CREATE TABLE points (
+                   id NUMBER PRIMARY KEY,
+                   x NUMBER NOT NULL,
+                   y NUMBER NOT NULL,
+                   r NUMBER NOT NULL,
+                   is_hit NUMBER(1) NOT NULL CHECK(is_hit in (0, 1)),
+                   time VARCHAR(255) NOT NULL,
+                   execution_time NUMBER NOT NULL,
+                   session_id VARCHAR(50))
+                """;
             statement.execute(createQuery);
+            log.info("Table 'points' created successfully.");
+
+            String createSequence = "CREATE SEQUENCE points_seq START WITH 1 INCREMENT BY 1";
+            statement.execute(createSequence);
+            log.info("Sequence 'points_seq' created successfully.");
+
+            String createTrigger = """
+                        CREATE OR REPLACE TRIGGER points_trigger
+                        BEFORE INSERT ON points
+                        FOR EACH ROW
+                        BEGIN
+                          IF :NEW.id IS NULL THEN
+                            :NEW.id := points_seq.NEXTVAL;
+                          END IF;
+                        END;
+                        """;
+            statement.execute(createTrigger);
+            log.info("Trigger 'points_trigger' created successfully.");
         } catch (SQLException exception) {
             log.error(exception);
         }
@@ -97,9 +115,9 @@ public class PointService implements Repository<Point>, Serializable {
             connection = DriverManager.getConnection(DB_URL, USER, PASSWORD);
             connection.setAutoCommit(false);
             String insertQuery = """
-            INSERT INTO points (x, y, r, is_hit, time, execution_time, session_id)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-        """;
+                        INSERT INTO points (x, y, r, is_hit, time, execution_time, session_id)
+                        VALUES (?, ?, ?, ?, ?, ?, ?)
+                    """;
             try (PreparedStatement statement = connection.prepareStatement(insertQuery)) {
                 statement.setDouble(1, point.getX());
                 statement.setDouble(2, point.getY());

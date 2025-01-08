@@ -1,19 +1,22 @@
-let value_X, value_Y, value_R;
+let value_X = 0;
+let value_Y = 0;
+let value_R = 2;
 const CANVAS = document.getElementById("myCanvas");
 const CTX = CANVAS.getContext("2d");
 CANVAS.addEventListener("click", (event) => handleImageClick(CANVAS, event))
 draw();
 
-function setValueX() {
+function setValueX(value) {
     value_X = value;
 }
 
-function setValueY() {
+function setValueY(value) {
     value_Y = value;
 }
 
-function setValueR() {
+function setValueR(value) {
     value_R = value;
+    console.log(value_R);
     draw();
 }
 
@@ -167,20 +170,18 @@ function checkCircle(x, y, r) {
 }
 
 function checkTriangle(x, y, r) {
-    return x <= r && y >= (-r) && (-x) + r <= y;
+    return (x <= r) && (y >= (-r)) && ((-x) + r <= y);
 }
 
 
 function drawPoint(x, y, r) {
-    value_X = x
-    value_Y = y
-    value_R = r
-    const scale = 30 * r;
-    const center_X = CANVAS.width / 2;
-    const center_Y = CANVAS.height / 2;
-    const dot_X = center_X + (x / (r * 1.75)) * scale;
-    const dot_Y = center_Y - (y / (r * 1.75)) * scale;
-    if (validateX() && validateY() && validateR()){
+    console.log(x, y, r)
+    if (validateX() && validateY() && validateR()) {
+        const scale = 30 * r;
+        const center_X = CANVAS.width / 2;
+        const center_Y = CANVAS.height / 2;
+        const dot_X = center_X + (x / (r * 1.75)) * scale;
+        const dot_Y = center_Y - (y / (r * 1.75)) * scale;
         if (checkPoint(x, y, r)) {
             CTX.fillStyle = "green";
         } else {
@@ -193,7 +194,7 @@ function drawPoint(x, y, r) {
     } else {
         document.getElementById("result-text").innerText = "Some of parameters(X, Y, R) are invalid." +
             "\nMake sure that input data is correct and try again.";
-        document.getElementById("result-text").classList.add("warningStub");
+        document.getElementById("result-text").classList.add("errorStub");
         document.getElementById("result-text").style.display = "flex";
         setTimeout(() => {
             document.getElementById("result-text").style.display = "none";
@@ -202,4 +203,3 @@ function drawPoint(x, y, r) {
         }, 1000);
     }
 }
-
