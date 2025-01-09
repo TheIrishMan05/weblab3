@@ -61,7 +61,7 @@ public class PointService implements Repository<Point>, Serializable {
             log.info("Table 'points' created successfully.");
 
         } catch (SQLException exception) {
-            log.error("Error creating table, sequence, or trigger", exception);
+            log.error("Error creating table", exception);
         }
     }
 
