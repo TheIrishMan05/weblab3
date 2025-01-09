@@ -1,6 +1,6 @@
 FROM tomee:10-jre17-webprofile
 
-ADD ojdbc11-23.3.0.23.09.jar /usr/local/tomee/lib/
+ADD ojdbc17.jar /usr/local/tomee/lib/
 
 COPY build/libs/labwork3.war /usr/local/tomee/webapps/
 
