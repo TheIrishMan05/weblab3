@@ -19,7 +19,7 @@ public class PointService implements Repository<Point>, Serializable {
     private static final String USER = "SYSTEM";
     private static final String PASSWORD = "Oracle_123";
     private static final String DB_URL = "jdbc:oracle:thin:@//db:1521/FREE";
-    private final AtomicInteger idGenerator = new AtomicInteger(0);
+    private final AtomicInteger idGenerator = new AtomicInteger(getMaxIdFromDatabase());
 
     static {
         try {
@@ -29,6 +29,21 @@ public class PointService implements Repository<Point>, Serializable {
         }
         createTable();
     }
+
+    private int getMaxIdFromDatabase() {
+        String query = "SELECT NVL(MAX(id), 0) AS max_id FROM points";
+        try (Connection connection = DriverManager.getConnection(DB_URL, USER, PASSWORD);
+             Statement statement = connection.createStatement();
+             ResultSet resultSet = statement.executeQuery(query)) {
+            if (resultSet.next()) {
+                return resultSet.getInt("max_id");
+            }
+        } catch (SQLException exception) {
+            log.error("Error fetching max id from database", exception);
+        }
+        return 0;
+    }
+
 
     private static void createTable() {
         try (Connection connection = DriverManager.getConnection(DB_URL, USER, PASSWORD);

@@ -3,7 +3,15 @@ let value_Y = 0;
 let value_R = 2;
 const CANVAS = document.getElementById("myCanvas");
 const CTX = CANVAS.getContext("2d");
-CANVAS.addEventListener("click", (event) => handleImageClick(CANVAS, event))
+let points = JSON.parse(sessionStorage.getItem("points")) || [];
+
+window.addEventListener("load", () => {
+    if (points && points.length > 0) points.forEach((point) => {
+        if (point["r"] === value_R) drawPoint(point["x"], point["y"], point["r"]);
+    });
+});
+CANVAS.addEventListener("click", (event) => handleImageClick(CANVAS, event));
+
 draw();
 
 function setValueX(value) {
@@ -17,6 +25,9 @@ function setValueY(value) {
 function setValueR(value) {
     value_R = value;
     draw();
+    points.forEach((point) => {
+        if (point["r"] === value_R) drawPoint(point["x"], point["y"], point["r"]);
+    });
 }
 
 function draw() {
@@ -141,7 +152,7 @@ function handleImageClick(canvas, event) {
     let rawY = canvas.height / 2 - (event.clientY - area.top);
     value_X = (rawX / (canvas.width / 2) * value_R * 1.75);
     value_Y = (rawY / (canvas.height / 2) * value_R * 1.75);
-    drawPoint(value_X, value_Y, value_R)
+    manageData();
 }
 
 function checkPoint(x, y, r) {
@@ -168,22 +179,26 @@ function checkTriangle(x, y, r) {
     return x <= r && y >= -r && x - r >= y;
 }
 
+function manageData() {
+    drawPoint(value_X, value_Y, value_R);
+    let point = {
+        x: value_X,
+        y: value_Y,
+        r: value_R,
+    }
+    points.push(point);
+}
+
 
 function drawPoint(x, y, r) {
-    value_X = x;
-    value_Y = y;
-    value_R = r;
     if (validateX() && validateY() && validateR()) {
-        const scale = 30 * value_R;
+        const scale = 30 * r;
         const center_X = CANVAS.width / 2;
         const center_Y = CANVAS.height / 2;
-        const dot_X = center_X + (value_X / (value_R * 1.75)) * scale;
-        const dot_Y = center_Y - (value_Y / (value_R * 1.75)) * scale;
-        if (checkPoint(value_X, value_Y, value_R)) {
-            CTX.fillStyle = "green";
-        } else {
-            CTX.fillStyle = "red";
-        }
+        const dot_X = center_X + (x / (r * 1.75)) * scale;
+        const dot_Y = center_Y - (y / (r * 1.75)) * scale;
+        console.log(checkPoint(x, y, r));
+        checkPoint(x, y, r) ? CTX.fillStyle = "green" : CTX.fillStyle = "red";
         CTX.beginPath();
         CTX.arc(dot_X, dot_Y, 3, 0, 2 * Math.PI);
         CTX.fill();
