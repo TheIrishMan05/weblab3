@@ -55,20 +55,20 @@
                         <p:slider for="r-slider" styleClass="custom-slider" minValue="2"
                                   maxValue="5" step="0.1" range="max">
                             <f:validateDoubleRange minimum="2" maximum="5"/>
-                            <p:ajax event="slideEnd" oncomplete="setValueR(#{pointBean.r})"/>
                         </p:slider>
                     </div>
                     <div class="button-container">
                         <h:commandButton action="#{pointBean.checkPoint()}" value="Проверить"
-                                  styleClass="check-button" onclick="">
+                                  styleClass="check-button">
                             <f:ajax execute="@form" render="table"/>
                         </h:commandButton>
                         <h:button id="go-to-index" outcome="index.html" value="На начальную" styleClass="button"/>
                     </div>
                 </h:form>
                 <div id="canvas-container">
-                    <canvas height="350px" id="myCanvas" width="350px"></canvas>
+                    <canvas height="350px" id="myCanvas" width="350px" onclick=""></canvas>
                 </div>
+                <div id="result-text"></div>
             </div>
                 <h:dataTable value="#{pointBean.points}" styleClass="output-table" var="point" update="@form" id="table">
                     <h:column>
