@@ -34,31 +34,34 @@
                 <h3>Валидация введённых значений:</h3>
             </div>
             <div id="input-container">
-                <h:form>
+                <h:form id="form">
                     <div class="params-input">
                         <p:outputLabel for="@next" value="Значение X:"/>
-                        <p:spinner value="#{pointBean.x}" min="-5" max="5" step="1" onchange="setValueX(this.value)">
+                        <p:spinner id="x-spinner" value="#{pointBean.x}" min="-5" max="5" step="1">
                             <p:ajax event="change"/>
                         </p:spinner>
-                    </div>
+                     </div>
                     <div class="params-input">
                         <p:outputLabel for="@next" value="Значение Y:"/>
                         <p:inputText name="input" id="y-input" placeholder="не менее -3 и не более 5"
-                                     class="input" value="#{pointBean.y}" onchange="setValueY(this.value)">
+                                     class="input" value="#{pointBean.y}">
                             <f:validateDoubleRange minimum="-3" maximum="5"/>
                             <p:ajax event="change"/>
                         </p:inputText>
                     </div>
                     <div class="slider-container">
                         <p:outputLabel for="@next" value="Значение R:"/>
-                        <p:inputText id="r-slider" value="#{pointBean.r}" onchange="setValueR(this.value)"/>
+                        <p:inputText id="r-slider" value="#{pointBean.r}"/>
                         <p:slider for="r-slider" styleClass="custom-slider" minValue="2"
                                   maxValue="5" step="0.1" range="max">
                             <f:validateDoubleRange minimum="2" maximum="5"/>
                         </p:slider>
                     </div>
                     <div class="button-container">
-                        <h:commandButton action="#{pointBean.checkPoint()}" value="Проверить"
+                        <h:commandButton id="submitHidden" action="#{pointBean.checkPointByImageClick()}" style="display: none;">
+                            <f:ajax execute="@form" render="table"/>
+                        </h:commandButton>
+                        <h:commandButton id="submitButton" action="#{pointBean.checkPoint()}" value="Проверить"
                                   styleClass="check-button">
                             <f:ajax execute="@form" render="table"/>
                         </h:commandButton>
@@ -66,7 +69,7 @@
                     </div>
                 </h:form>
                 <div id="canvas-container">
-                    <canvas height="350px" id="myCanvas" width="350px" onclick=""></canvas>
+                    <canvas height="350px" id="myCanvas" width="350px"></canvas>
                 </div>
                 <div id="result-text"></div>
             </div>

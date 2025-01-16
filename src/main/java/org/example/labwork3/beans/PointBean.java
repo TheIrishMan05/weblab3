@@ -58,12 +58,26 @@ public class PointBean implements Serializable {
         point.setY(y);
         point.setR(r);
         point.setSessionId(sessionId);
-
         if (checker.isValid(point)) {
             point.setHit(checker.check(point));
             point.setTime(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
             point.setExecutionTime(System.currentTimeMillis() - time);
             PrimeFaces.current().executeScript(String.format("drawPoint(%f, %f, %f)", point.getX(), point.getY(), point.getR()));
+            this.addPoint(point);
+        }
+    }
+
+    public void checkPointByImageClick(){
+        long time = System.currentTimeMillis();
+        Point point = new Point();
+        point.setX(x);
+        point.setY(y);
+        point.setR(r);
+        point.setSessionId(sessionId);
+        if (checker.isValid(point)) {
+            point.setHit(checker.check(point));
+            point.setTime(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+            point.setExecutionTime(System.currentTimeMillis() - time);
             this.addPoint(point);
         }
     }

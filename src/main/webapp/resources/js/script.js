@@ -4,23 +4,47 @@ let value_R = 2;
 const canvas = document.getElementById("myCanvas");
 const ctx = canvas.getContext("2d");
 let points = JSON.parse(sessionStorage.getItem("points")) || [];
-canvas.addEventListener("click", handleImageClick)
+canvas.addEventListener("click", (() => {
+    return function handleImageClick() {
+        setValueR(document.getElementById("form:r-slider").value);
+        const event = arguments[0];
+        let area = canvas.getBoundingClientRect();
+
+        let rawX = event.clientX - area.left - canvas.width / 2;
+        let rawY = canvas.height / 2 - (event.clientY - area.top);
+
+        value_X = (rawX / (canvas.width / 2) * value_R * 1.75);
+        value_Y = (rawY / (canvas.height / 2) * value_R * 1.75);
+
+        const dot_X = canvas.width / 2 + rawX;
+        const dot_Y = canvas.height / 2 - rawY;
+
+        if (checkPoint(value_X, value_Y, value_R)) {
+            ctx.fillStyle = "green";
+        } else {
+            ctx.fillStyle = "red";
+        }
+        ctx.beginPath();
+        ctx.arc(dot_X, dot_Y, 3, 0, 2 * Math.PI);
+        ctx.fill();
+        ctx.closePath();
+        drawOldPoints(value_R);
+        points.push({
+            x: value_X,
+            y: value_Y,
+            r: value_R,
+        });
+        document.getElementById("form:x-spinner").value = value_X;
+        document.getElementById("form:y-input").value = value_Y;
+        document.getElementById("form:submitHidden").click();
+    };
+})());
 draw();
 
-function setValueX(value) {
-    value_X = value;
-}
-
-function setValueY(value) {
-    value_Y = value;
-}
 
 function setValueR(value) {
     value_R = value;
     draw();
-    points.forEach((point) => {
-        if (point["r"] === value_R) drawPoint(point["x"], point["y"], point["r"]);
-    });
 }
 
 function draw() {
@@ -139,30 +163,6 @@ function validateR(r) {
     return r !== undefined && r !== null && !isNaN(r) && r <= 5 && r >= 2;
 }
 
-function handleImageClick(event) {
-    let area = canvas.getBoundingClientRect();
-
-    let rawX = event.clientX - area.left - canvas.width / 2;
-    let rawY = canvas.height / 2 - (event.clientY - area.top);
-
-    value_X = (rawX / (canvas.width / 2) * value_R * 1.75);
-    value_Y = (rawY / (canvas.height / 2) * value_R * 1.75);
-
-    const dot_X = canvas.width / 2 + rawX;
-    const dot_Y = canvas.height / 2 - rawY;
-
-    if (checkPoint(value_X, value_Y, value_R)) {
-        ctx.fillStyle = "green";
-    } else {
-        ctx.fillStyle = "red";
-    }
-
-    ctx.beginPath();
-    ctx.arc(dot_X, dot_Y, 3, 0, 2 * Math.PI);
-    ctx.fill();
-    ctx.closePath();
-}
-
 
 function checkPoint(x, y, r) {
     if (x <= 0 && y >= 0) {
@@ -176,6 +176,17 @@ function checkPoint(x, y, r) {
     }
 }
 
+function drawOldPoints(r){
+    points.forEach(point => {
+        if(point["r"] === r) {
+            checkPoint(point["x"], point["y"], point["r"]) ? ctx.fillStyle = "green" : ctx.fillStyle = "red";
+            ctx.beginPath();
+            ctx.arc(point["x"], point["y"], 3, 0, 2 * Math.PI);
+            ctx.fill();
+            ctx.closePath();
+        }
+    });
+}
 function checkRectangle(x, y, r) {
     return x >= (-r / 2) && y <= r;
 }
@@ -189,7 +200,9 @@ function checkTriangle(x, y, r) {
 }
 
 
+
 function drawPoint(x, y, r) {
+    setValueR(r);
     console.log(x, y, r)
     if (validateX(x) && validateY(y) && validateR(r)) {
         const scale = 30 * r;
@@ -203,6 +216,12 @@ function drawPoint(x, y, r) {
         ctx.arc(dot_X, dot_Y, 3, 0, 2 * Math.PI);
         ctx.fill();
         ctx.closePath();
+        drawOldPoints(r);
+        points.push({
+            x: value_X,
+            y: value_Y,
+            r: value_R,
+        });
     } else {
         document.getElementById("result-text").innerText = "Some of parameters(X, Y, R) are invalid." +
             "\nMake sure that input data is correct and try again.";
@@ -213,5 +232,6 @@ function drawPoint(x, y, r) {
             document.getElementById("result-text").classList
                 .remove(...document.getElementById("result-text").classList);
         }, 1000);
+        drawOldPoints(r);
     }
 }
