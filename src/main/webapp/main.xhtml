@@ -58,15 +58,20 @@
                         </p:slider>
                     </div>
                     <div class="button-container">
-                        <h:commandButton id="submitHidden" action="#{pointBean.checkPointByImageClick()}" style="display: none;">
-                            <f:ajax execute="@form" render="table"/>
-                        </h:commandButton>
                         <h:commandButton id="submitButton" action="#{pointBean.checkPoint()}" value="Проверить"
                                   styleClass="check-button">
                             <f:ajax execute="@form" render="table"/>
                         </h:commandButton>
                         <h:button id="go-to-index" outcome="index.html" value="На начальную" styleClass="button"/>
                     </div>
+                </h:form>
+                <h:form id="formHidden">
+                    <h:inputHidden id="hiddenX" value="#{pointBean.x}"/>
+                    <h:inputHidden id="hiddenY" value="#{pointBean.y}"/>
+                    <h:inputHidden id="hiddenR" value="#{pointBean.r}"/>
+                    <h:commandButton id="submitHidden" action="#{pointBean.checkPointByImageClick()}" style="display: none;">
+                        <f:ajax execute="@form" render="table"/>
+                    </h:commandButton>
                 </h:form>
                 <div id="canvas-container">
                     <canvas height="350px" id="myCanvas" width="350px"></canvas>

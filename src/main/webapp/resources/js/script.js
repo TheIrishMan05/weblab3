@@ -34,9 +34,9 @@ canvas.addEventListener("click", (() => {
             y: value_Y,
             r: value_R,
         });
-        document.getElementById("form:x-spinner").value = value_X;
-        document.getElementById("form:y-input").value = value_Y;
-        document.getElementById("form:submitHidden").click();
+        document.getElementById("formHidden:hiddenX").value = value_X;
+        document.getElementById("formHidden:hiddenY").value = value_Y;
+        document.getElementById("formHidden:submitHidden").click();
     };
 })());
 draw();
