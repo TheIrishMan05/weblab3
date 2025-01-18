@@ -29,13 +29,11 @@ canvas.addEventListener("click", (() => {
         ctx.fill();
         ctx.closePath();
         drawOldPoints(value_R);
-        points.push({
-            x: value_X,
-            y: value_Y,
-            r: value_R,
-        });
+        points.push({ x: value_X, y: value_Y, r: value_R });
+        sessionStorage.setItem("points", JSON.stringify(points));
         document.getElementById("formHidden:hiddenX").value = value_X;
         document.getElementById("formHidden:hiddenY").value = value_Y;
+        document.getElementById("formHidden:hiddenR").value = value_R;
         document.getElementById("formHidden:submitHidden").click();
     };
 })());
@@ -144,6 +142,7 @@ function draw() {
         ctx.fillText("R", canvas.width / 2 - 25, canvas.height / 2 - 30 * value_R);
         ctx.fillText("R/2", canvas.width / 2 - 25, canvas.height / 2 - 15 * value_R);
     }
+    drawOldPoints(value_R);
 }
 
 function validateX(x) {
@@ -176,17 +175,23 @@ function checkPoint(x, y, r) {
     }
 }
 
-function drawOldPoints(r){
+function drawOldPoints(r) {
     points.forEach(point => {
-        if(point["r"] === r) {
-            checkPoint(point["x"], point["y"], point["r"]) ? ctx.fillStyle = "green" : ctx.fillStyle = "red";
+        if (point.r === r) {
+            const scale = 30 * r;
+            const center_X = canvas.width / 2;
+            const center_Y = canvas.height / 2;
+            const dot_X = center_X + (point.x / (r * 1.75)) * scale;
+            const dot_Y = center_Y - (point.y / (r * 1.75)) * scale;
+            checkPoint(point.x, point.y, r) ? ctx.fillStyle = "green" : ctx.fillStyle = "red";
             ctx.beginPath();
-            ctx.arc(point["x"], point["y"], 3, 0, 2 * Math.PI);
+            ctx.arc(dot_X, dot_Y, 3, 0, 2 * Math.PI);
             ctx.fill();
             ctx.closePath();
         }
     });
 }
+
 function checkRectangle(x, y, r) {
     return x >= (-r / 2) && y <= r;
 }
@@ -203,35 +208,28 @@ function checkTriangle(x, y, r) {
 
 function drawPoint(x, y, r) {
     setValueR(r);
-    console.log(x, y, r)
     if (validateX(x) && validateY(y) && validateR(r)) {
         const scale = 30 * r;
         const center_X = canvas.width / 2;
         const center_Y = canvas.height / 2;
         const dot_X = center_X + (x / (r * 1.75)) * scale;
         const dot_Y = center_Y - (y / (r * 1.75)) * scale;
-        console.log(checkPoint(x, y, r));
         checkPoint(x, y, r) ? ctx.fillStyle = "green" : ctx.fillStyle = "red";
         ctx.beginPath();
         ctx.arc(dot_X, dot_Y, 3, 0, 2 * Math.PI);
         ctx.fill();
         ctx.closePath();
         drawOldPoints(r);
-        points.push({
-            x: value_X,
-            y: value_Y,
-            r: value_R,
-        });
+        points.push({ x, y, r });
+        sessionStorage.setItem("points", JSON.stringify(points));
     } else {
-        document.getElementById("result-text").innerText = "Some of parameters(X, Y, R) are invalid." +
-            "\nMake sure that input data is correct and try again.";
-        document.getElementById("result-text").classList.add("errorStub");
-        document.getElementById("result-text").style.display = "flex";
+        const resultText = document.getElementById("result-text");
+        resultText.innerText = "Some of parameters(X, Y, R) are invalid.\nMake sure that input data is correct and try again.";
+        resultText.classList.add("errorStub");
+        resultText.style.display = "flex";
         setTimeout(() => {
-            document.getElementById("result-text").style.display = "none";
-            document.getElementById("result-text").classList
-                .remove(...document.getElementById("result-text").classList);
+            resultText.style.display = "none";
+            resultText.classList.remove(...resultText.classList);
         }, 1000);
-        drawOldPoints(r);
     }
 }
