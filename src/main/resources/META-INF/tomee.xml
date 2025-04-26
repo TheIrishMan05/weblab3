@@ -1,9 +1,9 @@
 <tomee>
-    <Resource id="OracleDatabase" type="DataSource">
-        JdbcDriver = oracle.jdbc.OracleDriver
-        JdbcUrl = jdbc:oracle:thin:@//db:1521/FREE
-        UserName = SYSTEM
-        Password = Oracle_123
-        JtaManaged = false
+    <Resource id="PostgresDatabase" type="DataSource">
+        JdbcDriver   = org.postgresql.Driver
+        JdbcUrl      = jdbc:postgresql://pg:5432/studs?currentSchema=s409109
+        UserName     = ${env.DB_USER}
+        Password     = ${env.DB_PASS}
+        JtaManaged   = false
     </Resource>
 </tomee>

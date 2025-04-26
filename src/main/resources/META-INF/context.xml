@@ -1,3 +1,7 @@
 <Context>
-    <ResourceLink name="jdbc/OracleDS" global="OracleDS" auth="Container" type="javax.sql.DataSource"/>
+    <ResourceLink
+        name="jdbc/PostgresDS"
+        global="PostgresDS"
+        auth="Container"
+        type="javax.sql.DataSource"/>
 </Context>
