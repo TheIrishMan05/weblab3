@@ -40,13 +40,13 @@
         <copy todir="${build.dir.lib}">
             <fileset dir="${lib.dir}"/>
         </copy>
-        <copy todir="${classes.lib}">
+        <copy todir="${classes.dir}">
             <fileset dir="${resources.dir}"/>
         </copy>
         <jar destfile="${build.dir}/${ant.project.name}.jar">
             <fileset dir="${classes.dir}"/>
             <manifest>
-                <attribute name="Created-By" value="ы409109"/>
+                <attribute name="Created-By" value="s409109"/>
                 <attribute name="Manifest-Version" value="1.0"/>
                 <attribute name="Main-Class" value="NoClass"/>
             </manifest>

@@ -1,3 +1,6 @@
+import org.apache.tools.ant.Project
+import org.apache.tools.ant.ProjectHelper
+
 plugins {
     id 'java'
     id 'war'
@@ -9,13 +12,29 @@ repositories {
     mavenCentral()
 }
 
+task antRun {
+    group = 'ant'
+    description = 'Запускает Ant-скрипт'
+    doLast() {
+        def antProject = new Project()
+        antProject.init()
+
+        def helper = ProjectHelper.getProjectHelper()
+        helper.parse(antProject, file('build.xml'))
+        antProject.baseDir = projectDir
+        antProject.defaultTarget = antProject.defaultTarget ?: 'build'
+        antProject.executeTarget(antProject.defaultTarget)
+    }
+}
+
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
 }
 
 task copyDependencies(type: Copy) {
-    description = 'Скопировать все runtime-зависимости в build/dependency-jars'
+    description = 'Скопировать все зависимости в lib'
     from configurations.runtimeClasspath
+    from configurations.compileClasspath
     into "lib"
 }
 
@@ -30,12 +49,9 @@ dependencies {
     compileOnly 'jakarta.servlet:jakarta.servlet-api:6.0.0'
     implementation "org.postgresql:postgresql:42.7.5"
     implementation 'org.glassfish.jaxb:jaxb-runtime:4.0.3'
-
-
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.3'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.3'
 }
-
 
 tasks.test {
     useJUnitPlatform()

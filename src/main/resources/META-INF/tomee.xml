@@ -2,7 +2,7 @@
     <Resource id="PostgresDatabase" type="DataSource">
         JdbcDriver   = org.postgresql.Driver
         JdbcUrl      = jdbc:postgresql://pg:5432/studs?currentSchema=s409109
-        UserName     = ${env.DB_USER}
+        UserName     = ${env.USER}
         Password     = ${env.DB_PASSWORD}
         JtaManaged   = false
     </Resource>

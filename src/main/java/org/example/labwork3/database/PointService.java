@@ -16,7 +16,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 @ApplicationScoped
 public class PointService implements Repository<Point>, Serializable {
 
-    private static final String USER = getEnvOrThrow("DB_USER");
+    private static final String USER = getEnvOrThrow("USER");
     private static final String PASSWORD = getEnvOrThrow("DB_PASSWORD");
     private static final String DB_URL = "jdbc:postgresql://pg:5432/studs?currentSchema=s409109";
 
