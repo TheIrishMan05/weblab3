@@ -1,0 +1,72 @@
+<?xml version="1.0"?>
+<project name="weblab3" default="build">
+    <property file="build.properties"/>
+    <path id="classpath">
+        <fileset dir="${lib.dir}" includes="*.jar"/>
+        <fileset dir="${main.dir}" includes="*.java"/>
+    </path>
+
+    <path id="classpath.test">
+        <pathelement location="${junit}"/>
+        <pathelement location="${hamcrest}"/>
+        <pathelement location="${classes.dir}"/>
+    </path>
+
+    <taskdef resource="net/sf/antcontrib/antcontrib.properties">
+        <classpath>
+            <pathelement location="${contrib}"/>
+        </classpath>
+    </taskdef>
+
+    <taskdef resource="net/sf/antcontrib/antlib.xml">
+        <classpath>
+            <pathelement location="${contrib}"/>
+        </classpath>
+    </taskdef>
+
+    <target name="compile" depends="clean">
+        <echo message="***** Начало компиляции *****"/>
+        <mkdir dir="${classes.dir}"/>
+        <mkdir dir="${test.classes.dir}"/>
+        <javac srcdir="${src.dir}" destdir="${classes.dir}" classpathref="classpath" includeantruntime="false"/>
+        <echo message="***** Компиляция завершена *****"/>
+    </target>
+
+    <target name="build" depends="compile">
+        <echo message="***** Начало сборки *****"/>
+        <copy todir="${build.dir}">
+            <fileset dir="${web.dir}"/>
+        </copy>
+        <copy todir="${build.dir.lib}">
+            <fileset dir="${lib.dir}"/>
+        </copy>
+        <copy todir="${classes.lib}">
+            <fileset dir="${resources.dir}"/>
+        </copy>
+        <jar destfile="${build.dir}/${ant.project.name}.jar">
+            <fileset dir="${classes.dir}"/>
+            <manifest>
+                <attribute name="Created-By" value="ы409109"/>
+                <attribute name="Manifest-Version" value="1.0"/>
+                <attribute name="Main-Class" value="NoClass"/>
+            </manifest>
+        </jar>
+        <war destfile="${build.dir}/${ant.project.name}.war" webxml="${build.web.xml}">
+            <fileset dir="${classes.dir}"/>
+            <manifest>
+                <attribute name="Created-By" value="s409109"/>
+                <attribute name="Manifest-Version" value="1.0"/>
+                <attribute name="Main-Class" value="NoClass"/>
+            </manifest>
+        </war>
+        <echo message="***** Сборка завершена *****"/>
+    </target>
+
+    <target name="clean">
+        <echo message="***** Очистка началась *****"/>
+        <delete dir="${build.dir}"/>
+        <delete dir="${junit.report.dir}"/>
+        <echo message="***** Очистка завершена *****"/>
+    </target>
+
+</project>
