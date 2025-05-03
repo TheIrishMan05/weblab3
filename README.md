@@ -17,3 +17,15 @@
     cd weblab3
     docker-compose up --build
 ```
+### Project design
+
+Начальная страница
+
+![image](https://github.com/user-attachments/assets/947493c1-66c6-4f5a-96be-d5f5b72bf97d)
+
+Главная страница
+
+
+
+
+
