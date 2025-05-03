@@ -5,6 +5,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.io.Serial;
 import java.io.Serializable;
 
 @Setter
@@ -12,6 +13,7 @@ import java.io.Serializable;
 @EqualsAndHashCode
 public class Point implements Serializable {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     private int id;
@@ -29,4 +31,5 @@ public class Point implements Serializable {
     private long executionTime;
 
     private String sessionId;
+
 }
