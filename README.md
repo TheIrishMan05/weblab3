@@ -7,7 +7,7 @@
 1. Client-side: Javascript, HTML + CSS
 2. Server-side: Jakarta EE, CDI Beans, JSF(Primefaces), JDBC
 3. СУБД: Oracle
-4. Server: Tomcat 10.1.30
+4. Server: TomEE 10.1.30
 5. Сборка проекта: Docker
 
 ### Как запустить лабораторную?
