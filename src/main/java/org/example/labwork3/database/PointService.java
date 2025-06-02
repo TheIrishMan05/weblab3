@@ -16,11 +16,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 @ApplicationScoped
 public class PointService implements Repository<Point>, Serializable {
 
-    private static final String USER = getEnvOrThrow("USER");
-    private static final String PASSWORD = getEnvOrThrow("DB_PASSWORD");
-    private static final String DB_URL = "jdbc:postgresql://pg:5432/studs?currentSchema=s409109";
+    private static final String USER = "SYSTEM";
+    private static final String PASSWORD = "Oracle_123";
+    private static final String DB_URL = "jdbc:oracle:thin:@//db:1521/FREE";
 
-    private static final AtomicInteger idGenerator = new AtomicInteger(0);
+    private final AtomicInteger idGenerator = new AtomicInteger(getMaxIdFromDatabase());
 
     static {
         try {
@@ -31,25 +31,52 @@ public class PointService implements Repository<Point>, Serializable {
         createTable();
     }
 
+    private int getMaxIdFromDatabase() {
+        String query = "SELECT NVL(MAX(id), 0) AS max_id FROM points";
+        try (Connection connection = DriverManager.getConnection(DB_URL, USER, PASSWORD);
+                Statement statement = connection.createStatement();
+                ResultSet resultSet = statement.executeQuery(query)) {
+            if (resultSet.next()) {
+                return resultSet.getInt("max_id");
+            }
+        } catch (SQLException exception) {
+            log.error("Error fetching max id from database", exception);
+        }
+        return 0;
+    }
+
     private static void createTable() {
         try (Connection connection = DriverManager.getConnection(DB_URL, USER, PASSWORD);
-             Statement statement = connection.createStatement()) {
+                Statement statement = connection.createStatement()) {
 
+            String checkTableExisting = """
+            SELECT COUNT(*) AS count
+            FROM all_tables
+            WHERE table_name = 'POINTS'
+            """;
+
+            try (ResultSet resultSet = statement.executeQuery(checkTableExisting)) {
+                if (resultSet.next() && resultSet.getInt("count") > 0) {
+                    log.info("Table already exists. Skipping...");
+                    return;
+                }
+            }
 
             String createQuery = """
-                CREATE OR REPLACE TABLE points (
-                  id            INTEGER PRIMARY KEY,
-                  x             DOUBLE PRECISION NOT NULL,
-                  y             DOUBLE PRECISION NOT NULL,
-                  r             DOUBLE PRECISION NOT NULL,
-                  is_hit        BOOLEAN NOT NULL,
-                  time          VARCHAR(255) NOT NULL,
-                  execution_time BIGINT NOT NULL,
-                  session_id    VARCHAR(50)
-                )
-                """;
+            CREATE TABLE points (
+            id NUMBER PRIMARY KEY,
+            x NUMBER NOT NULL,
+            y NUMBER NOT NULL,
+            r NUMBER NOT NULL,
+            is_hit NUMBER(1) NOT NULL CHECK(is_hit in (0, 1)),
+            time VARCHAR(255) NOT NULL,
+            execution_time NUMBER NOT NULL,
+            session_id VARCHAR(50))
+            """;
             statement.execute(createQuery);
             log.info("Table 'points' created successfully.");
+
+            
 
         } catch (SQLException ex) {
             log.error("Error creating table 'points'", ex);
@@ -61,7 +88,7 @@ public class PointService implements Repository<Point>, Serializable {
         List<Point> points = new ArrayList<>();
         String sql = "SELECT * FROM points WHERE session_id = ?";
         try (Connection conn = DriverManager.getConnection(DB_URL, USER, PASSWORD);
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+                PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, sessionId);
             log.info("Executing query: {}", sql);
@@ -73,7 +100,7 @@ public class PointService implements Repository<Point>, Serializable {
                     p.setX(rs.getDouble("x"));
                     p.setY(rs.getDouble("y"));
                     p.setR(rs.getDouble("r"));
-                    p.setHit(rs.getBoolean("is_hit"));
+                    p.setHit(rs.getInt("is_hit") == 1);
                     p.setTime(rs.getString("time"));
                     p.setExecutionTime(rs.getLong("execution_time"));
                     p.setSessionId(rs.getString("session_id"));
@@ -89,9 +116,9 @@ public class PointService implements Repository<Point>, Serializable {
     @Override
     public void insert(Point point) {
         String insertSql = """
-            INSERT INTO points (id, x, y, r, is_hit, time, execution_time, session_id)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-        """;
+                    INSERT INTO points (id, x, y, r, is_hit, time, execution_time, session_id)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                """;
         try (Connection conn = DriverManager.getConnection(DB_URL, USER, PASSWORD)) {
             conn.setAutoCommit(false);
             try (PreparedStatement ps = conn.prepareStatement(insertSql)) {
@@ -99,7 +126,7 @@ public class PointService implements Repository<Point>, Serializable {
                 ps.setDouble(2, point.getX());
                 ps.setDouble(3, point.getY());
                 ps.setDouble(4, point.getR());
-                ps.setBoolean(5, point.isHit());
+                ps.setInt(5, point.isHit() ? 1 : 0);
                 ps.setString(6, point.getTime());
                 ps.setLong(7, point.getExecutionTime());
                 ps.setString(8, point.getSessionId());
@@ -109,13 +136,5 @@ public class PointService implements Repository<Point>, Serializable {
         } catch (SQLException ex) {
             log.error("Error inserting point", ex);
         }
-    }
-
-    private static String getEnvOrThrow(String name) {
-        String val = System.getenv(name);
-        if (val == null || val.isBlank()) {
-            throw new IllegalStateException("Environment variable '" + name + "' is not set");
-        }
-        return val;
     }
 }
