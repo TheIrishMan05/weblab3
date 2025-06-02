@@ -1,9 +1,15 @@
 package org.example.labwork3.database;
 
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.Initialized;
+import jakarta.enterprise.context.SessionScoped;
+import jakarta.enterprise.event.Observes;
 import jakarta.inject.Named;
 import lombok.extern.log4j.Log4j2;
+
+import org.example.labwork3.beans.HitBean;
 import org.example.labwork3.models.Point;
+import org.example.labwork3.utils.MBeanRegisterUtil;
 
 import java.io.Serializable;
 import java.sql.*;
@@ -20,15 +26,29 @@ public class PointService implements Repository<Point>, Serializable {
     private static final String PASSWORD = "Oracle_123";
     private static final String DB_URL = "jdbc:oracle:thin:@//db:1521/FREE";
 
+    private final HitBean hitMBean = new HitBean();
+    // здесь будет поле с твоим бином
+
     private final AtomicInteger idGenerator = new AtomicInteger(getMaxIdFromDatabase());
 
     static {
         try {
-            Class.forName("org.postgresql.Driver");
+            Class.forName("oracle.jdbc.OracleDriver");
         } catch (ClassNotFoundException e) {
             throw new RuntimeException("JDBC Driver not found ", e);
         }
         createTable();
+    }
+
+
+    public void init(@Observes @Initialized(SessionScoped.class) Object unused) {
+        MBeanRegisterUtil.registerBean(hitMBean, "hitBean");
+        //аналогичная регистрация для твоего бина
+    }
+
+    public void destroy(@Observes @Initialized(SessionScoped.class) Object unused){
+        MBeanRegisterUtil.unregisterBean(hitMBean);
+        //аналогично для твоего бина
     }
 
     private int getMaxIdFromDatabase() {
@@ -131,10 +151,30 @@ public class PointService implements Repository<Point>, Serializable {
                 ps.setLong(7, point.getExecutionTime());
                 ps.setString(8, point.getSessionId());
                 ps.executeUpdate();
+                hitMBean.updateHits(point.isHit());
+                //тут ты добавляешь вызов метода для выполнения задачи из ТЗ(средний интервал клика)
+                conn.commit();
+            } catch (SQLException exception) {
+                log.error("Error inserting point", exception);
+                if (conn != null) {
+                    try {
+                        conn.rollback();
+                    } catch (SQLException e) {
+                        log.error("Error during rollback", e);
+                    }
+                }
+            } finally {
+                if (conn != null) {
+                    try {
+                        conn.setAutoCommit(true);
+                        conn.close();
+                    } catch (SQLException e) {
+                        log.error("Error closing connection", e);
+                    }
+                }
             }
-            conn.commit();
         } catch (SQLException ex) {
             log.error("Error inserting point", ex);
-        }
+        }    
     }
 }
