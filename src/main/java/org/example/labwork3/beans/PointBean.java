@@ -20,9 +20,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+@Named
 @Getter
 @Setter
-@Named
 @ViewScoped
 public class PointBean implements Serializable {
     @Inject

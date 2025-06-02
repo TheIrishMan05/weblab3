@@ -1,6 +1,7 @@
 <?xml version="1.0"?>
 <project name="weblab3" default="build">
     <property file="build.properties"/>
+    
     <path id="classpath">
         <fileset dir="${lib.dir}" includes="*.jar"/>
         <fileset dir="${main.dir}" includes="*.java"/>
@@ -24,7 +25,7 @@
         </classpath>
     </taskdef>
 
-    <target name="compile" depends="clean">
+    <target name="compile" depends="clean" description="компиляция исходных кодов проекта">
         <echo message="***** Начало компиляции *****"/>
         <mkdir dir="${classes.dir}"/>
         <mkdir dir="${test.classes.dir}"/>
@@ -32,7 +33,7 @@
         <echo message="***** Компиляция завершена *****"/>
     </target>
 
-    <target name="build" depends="compile">
+    <target name="build" depends="compile" description="компиляция исходных кодов проекта и их упаковка в исполняемый jar-архив">
         <echo message="***** Начало сборки *****"/>
         <copy todir="${build.dir}">
             <fileset dir="${web.dir}"/>
@@ -43,7 +44,7 @@
         <copy todir="${classes.dir}">
             <fileset dir="${resources.dir}"/>
         </copy>
-        <jar destfile="${build.dir}/${ant.project.name}.jar">
+        <jar destfile="${jar.dir}">
             <fileset dir="${classes.dir}"/>
             <manifest>
                 <attribute name="Created-By" value="s409109"/>
@@ -51,7 +52,7 @@
                 <attribute name="Main-Class" value="NoClass"/>
             </manifest>
         </jar>
-        <war destfile="${build.dir}/${ant.project.name}.war" webxml="${build.web.xml}">
+        <war destfile="${war.dir}" webxml="${build.web.xml}">
             <fileset dir="${classes.dir}"/>
             <manifest>
                 <attribute name="Created-By" value="s409109"/>
@@ -62,11 +63,59 @@
         <echo message="***** Сборка завершена *****"/>
     </target>
 
-    <target name="clean">
+    <target name="clean" description="удаление скомпилированных классов проекта и всех временных файлов">
         <echo message="***** Очистка началась *****"/>
         <delete dir="${build.dir}"/>
         <delete dir="${junit.report.dir}"/>
         <echo message="***** Очистка завершена *****"/>
     </target>
 
+    <target name="test" depends="build" description="запуск junit-тестов проекта">
+        <echo message="***** Начало тестирования *****"/>
+        <mkdir dir="${test.classes.dir}"/>
+        <mkdir dir="${junit.report.dir}"/>
+        <javac destdir="${test.classes.dir}" srcdir="${test.dir}" includeantruntime="false" encoding="utf-8">
+            <classpath refid="classpath.test"/>
+        </javac>
+        <junit printsummary="on" haltonfailure="true" haltonerror="true">
+            <classpath>
+                <path refid="classpath.test"/>
+                <pathelement location="${test.classes.dir}"/>
+            </classpath>
+            <batchtest fork="yes" todir="${junit.report.dir}">
+                <formatter type="plain"/>
+                <fileset dir="${test.dir}" includes="*Test.java"/>
+            </batchtest>
+        </junit>
+        <echo message="***** Тестирование завершено *****"/>
+    </target>
+
+    <target name="scp" depends="build" description="перемещение собранного проекта по scp на выбранный сервер по завершению сборки">
+        <echo message="***** Перемещение через SCP *****"/>
+        <exec executable="scp" failonerror="true">
+            <arg value="-P"/>
+            <arg value="${scp.port}"/>
+            <arg value="${jar.dir}"/>
+            <arg value="${scp.user}@${scp.host}:${scp.remote.dir}"/>
+        </exec>
+        <echo message="***** Перемещение завершено *****"/>
+    </target>
+
+    <target name="env" depends="clean" description="осуществляет сборку и запуск программы в альтернативных окружениях">
+        <echo message="***** Сборка и запуск программы *****"/>
+        <mkdir dir="${classes.dir}"/>
+        <javac srcdir="${main.dir}" destdir="${classes.dir}" classpathref="classpath" source="${compile.version}"
+               includeantruntime="false">
+            <compilerarg line="${vm.args}"/>
+        </javac>
+        <copy todir="${classes.dir}">
+            <fileset dir="${resources.dir}"/>
+        </copy>
+        <antcall target="build"/>
+        <copy file="${war.dir}" todir="${env.dir}"/>
+        <exec executable="sh" failonerror="true">
+            <arg value="${env.script}"/>
+        </exec>
+        <echo message="***** Сборка и запуск программы завершены *****"/>
+    </target>
 </project>
