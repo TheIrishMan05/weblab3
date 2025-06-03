@@ -7,6 +7,7 @@ import jakarta.enterprise.event.Observes;
 import jakarta.inject.Named;
 import lombok.extern.log4j.Log4j2;
 
+import org.example.labwork3.beans.ClickIntervalBean;
 import org.example.labwork3.beans.HitBean;
 import org.example.labwork3.models.Point;
 import org.example.labwork3.utils.MBeanRegisterUtil;
@@ -27,8 +28,7 @@ public class PointService implements Repository<Point>, Serializable {
     private static final String DB_URL = "jdbc:oracle:thin:@//db:1521/FREE";
 
     private final HitBean hitMBean = new HitBean();
-    // здесь будет поле с твоим бином
-
+    private final ClickIntervalBean clickIntervalMBean = new ClickIntervalBean();
     private final AtomicInteger idGenerator = new AtomicInteger(getMaxIdFromDatabase());
 
     static {
@@ -43,12 +43,12 @@ public class PointService implements Repository<Point>, Serializable {
 
     public void init(@Observes @Initialized(SessionScoped.class) Object unused) {
         MBeanRegisterUtil.registerBean(hitMBean, "hitBean");
-        //аналогичная регистрация для твоего бина
+        MBeanRegisterUtil.registerBean(clickIntervalMBean, "clickIntervalBean");
     }
 
     public void destroy(@Observes @Initialized(SessionScoped.class) Object unused){
         MBeanRegisterUtil.unregisterBean(hitMBean);
-        //аналогично для твоего бина
+        MBeanRegisterUtil.unregisterBean(clickIntervalMBean);
     }
 
     private int getMaxIdFromDatabase() {
@@ -152,7 +152,7 @@ public class PointService implements Repository<Point>, Serializable {
                 ps.setString(8, point.getSessionId());
                 ps.executeUpdate();
                 hitMBean.updateHits(point.isHit());
-                //тут ты добавляешь вызов метода для выполнения задачи из ТЗ(средний интервал клика)
+                clickIntervalMBean.recordClick();
                 conn.commit();
             } catch (SQLException exception) {
                 log.error("Error inserting point", exception);
