@@ -2,7 +2,6 @@ package org.example.labwork3.beans;
 
 import java.util.concurrent.atomic.AtomicLong;
 import jakarta.enterprise.context.ApplicationScoped;
-import org.example.labwork3.utils.MBeanRegisterUtil;
 
 @ApplicationScoped
 public class ClickIntervalBean implements ClickIntervalMBean {
