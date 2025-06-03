@@ -53,7 +53,7 @@ public class HitBean implements HitMBean {
     }
 
     public MBeanNotificationInfo[] getNotificationInfo() {
-        String[] types = new String[] { "consecutive.misses" };
+        String[] types = new String[] { "out.of.bounds" };
         String name = Notification.class.getName();
         String description = "Notification sent when hit is out of bounds of plot.";
         MBeanNotificationInfo info = new MBeanNotificationInfo(types, name, description);
