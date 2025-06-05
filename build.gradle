@@ -1,6 +1,3 @@
-import org.apache.tools.ant.Project
-import org.apache.tools.ant.ProjectHelper
-
 plugins {
     id 'java'
     id 'war'
@@ -12,34 +9,12 @@ repositories {
     mavenCentral()
 }
 
-task antRun {
-    group = 'ant'
-    description = 'Запускает Ant-скрипт'
-    doLast() {
-        def antProject = new Project()
-        antProject.init()
-
-        def helper = ProjectHelper.getProjectHelper()
-        helper.parse(antProject, file('build.xml'))
-        antProject.baseDir = projectDir
-        antProject.defaultTarget = antProject.defaultTarget ?: 'build'
-        antProject.executeTarget(antProject.defaultTarget)
-    }
-}
-
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
 }
 
-
-task copyDependencies(type: Copy) {
-    description = 'Скопировать все зависимости в lib'
-    from configurations.runtimeClasspath
-    from configurations.compileClasspath
-    into "lib"
-}
-
 dependencies {
+    implementation files('lib/ojdbc17.jar')
     annotationProcessor "org.projectlombok:lombok:1.18.32"
     compileOnly "org.projectlombok:lombok:1.18.32"
     compileOnly 'jakarta.enterprise:jakarta.enterprise.cdi-api:4.0.1'
