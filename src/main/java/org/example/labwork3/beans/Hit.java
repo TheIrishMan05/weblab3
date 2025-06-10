@@ -7,7 +7,7 @@ import javax.management.*;
 import jakarta.enterprise.context.ApplicationScoped;
 
 @ApplicationScoped
-public class HitBean implements HitBeanMBean,  NotificationBroadcaster{
+public class Hit implements HitMBean,  NotificationBroadcaster{
     private final AtomicInteger hits = new AtomicInteger();
     private final AtomicInteger successfulHits = new AtomicInteger();
 

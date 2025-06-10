@@ -1,6 +1,5 @@
 package org.example.labwork3.database;
 
-import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.context.Initialized;
 import jakarta.enterprise.context.SessionScoped;
@@ -8,8 +7,8 @@ import jakarta.enterprise.event.Observes;
 import jakarta.inject.Named;
 import lombok.extern.log4j.Log4j2;
 
-import org.example.labwork3.beans.ClickIntervalBean;
-import org.example.labwork3.beans.HitBean;
+import org.example.labwork3.beans.ClickInterval;
+import org.example.labwork3.beans.Hit;
 import org.example.labwork3.models.Point;
 import org.example.labwork3.utils.MBeanRegisterUtil;
 
@@ -28,29 +27,26 @@ public class PointService implements Repository<Point>, Serializable {
     private static final String PASSWORD = "Oracle_123";
     private static final String DB_URL = "jdbc:oracle:thin:@//db:1521/FREE";
 
-    private final HitBean hitMBean = new HitBean();
-    private final ClickIntervalBean clickIntervalMBean = new ClickIntervalBean();
-    private AtomicInteger idGenerator;
+    private final Hit hitMBean = new Hit();
+    private final ClickInterval clickIntervalMBean = new ClickInterval();
+    private AtomicInteger idGenerator = new AtomicInteger(getMaxIdFromDatabase());
 
-    @PostConstruct
-    public void init() {
+    static {
         try {
-            DriverManager.registerDriver(new oracle.jdbc.driver.OracleDriver());
-            log.info("Oracle JDBC driver successfully registered");
-            createTable();
-            idGenerator = new AtomicInteger(getMaxIdFromDatabase());
-        } catch (SQLException e) {
-            log.error("Failed to register JDBC driver", e);
+            Class.forName("oracle.jdbc.OracleDriver");
+        } catch (ClassNotFoundException e) {
+            log.error("Table creation failed", e);
         }
+        createTable();
     }
 
 
-    public void init(@Observes @Initialized(SessionScoped.class) Object unused) {
+    public void init(@Observes @Initialized(ApplicationScoped.class) Object unused) {
         MBeanRegisterUtil.registerBean(hitMBean, "HitBean");
         MBeanRegisterUtil.registerBean(clickIntervalMBean, "ClickIntervalBean");
     }
 
-    public void destroy(@Observes @Initialized(SessionScoped.class) Object unused){
+    public void destroy(@Observes @Initialized(ApplicationScoped.class) Object unused){
         MBeanRegisterUtil.unregisterBean(hitMBean);
         MBeanRegisterUtil.unregisterBean(clickIntervalMBean);
     }
@@ -69,7 +65,7 @@ public class PointService implements Repository<Point>, Serializable {
         return 0;
     }
 
-    private void createTable() {
+    private static void createTable() {
         try (Connection connection = DriverManager.getConnection(DB_URL, USER, PASSWORD);
                 Statement statement = connection.createStatement()) {
 
