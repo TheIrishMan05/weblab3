@@ -41,7 +41,7 @@ public class PointService implements Repository<Point>, Serializable {
     }
 
 
-    public void init(@Observes @Initialized(ApplicationScoped.class) Object unused) {
+    public void init(@Observes @Initialized(SessionScoped.class) Object unused) {
         MBeanRegisterUtil.registerBean(hitMBean, "HitBean");
         MBeanRegisterUtil.registerBean(clickIntervalMBean, "ClickIntervalBean");
     }
