@@ -1,5 +1,6 @@
 package org.example.labwork3.database;
 
+import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.context.Initialized;
 import jakarta.enterprise.context.SessionScoped;
@@ -29,21 +30,24 @@ public class PointService implements Repository<Point>, Serializable {
 
     private final HitBean hitMBean = new HitBean();
     private final ClickIntervalBean clickIntervalMBean = new ClickIntervalBean();
-    private final AtomicInteger idGenerator = new AtomicInteger(getMaxIdFromDatabase());
+    private AtomicInteger idGenerator;
 
-    static {
+    @PostConstruct
+    public void init() {
         try {
-            Class.forName("oracle.jdbc.OracleDriver");
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException("JDBC Driver not found ", e);
+            DriverManager.registerDriver(new oracle.jdbc.driver.OracleDriver());
+            log.info("Oracle JDBC driver successfully registered");
+            createTable();
+            idGenerator = new AtomicInteger(getMaxIdFromDatabase());
+        } catch (SQLException e) {
+            log.error("Failed to register JDBC driver", e);
         }
-        createTable();
     }
 
 
     public void init(@Observes @Initialized(SessionScoped.class) Object unused) {
-        MBeanRegisterUtil.registerBean(hitMBean, "hitBean");
-        MBeanRegisterUtil.registerBean(clickIntervalMBean, "clickIntervalBean");
+        MBeanRegisterUtil.registerBean(hitMBean, "HitBean");
+        MBeanRegisterUtil.registerBean(clickIntervalMBean, "ClickIntervalBean");
     }
 
     public void destroy(@Observes @Initialized(SessionScoped.class) Object unused){
@@ -65,7 +69,7 @@ public class PointService implements Repository<Point>, Serializable {
         return 0;
     }
 
-    private static void createTable() {
+    private void createTable() {
         try (Connection connection = DriverManager.getConnection(DB_URL, USER, PASSWORD);
                 Statement statement = connection.createStatement()) {
 

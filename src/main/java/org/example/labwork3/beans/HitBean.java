@@ -7,7 +7,7 @@ import javax.management.*;
 import jakarta.enterprise.context.ApplicationScoped;
 
 @ApplicationScoped
-public class HitBean implements HitMBean {
+public class HitBean implements HitBeanMBean,  NotificationBroadcaster{
     private final AtomicInteger hits = new AtomicInteger();
     private final AtomicInteger successfulHits = new AtomicInteger();
 
@@ -43,15 +43,17 @@ public class HitBean implements HitMBean {
         checkForHitsOutOfBound(isHit);
     }
 
-
+    @Override
     public void addNotificationListener(NotificationListener listener, NotificationFilter filter, Object handback) throws IllegalArgumentException {
         broadcaster.addNotificationListener(listener, filter, handback);
     }
 
+    @Override
     public void removeNotificationListener(NotificationListener listener) throws ListenerNotFoundException {
         broadcaster.removeNotificationListener(listener);
     }
 
+    @Override
     public MBeanNotificationInfo[] getNotificationInfo() {
         String[] types = new String[] { "out.of.bounds" };
         String name = Notification.class.getName();

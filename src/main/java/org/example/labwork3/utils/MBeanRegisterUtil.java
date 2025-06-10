@@ -1,40 +1,46 @@
 package org.example.labwork3.utils;
 
+import javax.management.*;
 import java.lang.management.ManagementFactory;
 import java.util.HashMap;
+import java.util.Map;
 
-import jakarta.servlet.ServletContextListener;
-import lombok.experimental.UtilityClass;
-import javax.management.*;
+public class MBeanRegisterUtil {
+    private static final Map<Object, ObjectName> beanMap = new HashMap<>();
 
-
-@UtilityClass
-public class MBeanRegisterUtil implements ServletContextListener{
-    private final HashMap<Class<?>, ObjectName> beanMap = new HashMap<>();
-
-    public void registerBean(Object bean, String name){
+    public static void registerBean(Object bean, String beanName) {
         try {
-            String domain = bean.getClass().getPackageName();
-            String type = bean.getClass().getSimpleName();
-            ObjectName objectName = new ObjectName(String.format("%s:type=%s,name=%s", domain, type, name));
-            ManagementFactory.getPlatformMBeanServer().registerMBean(bean, objectName);
-            beanMap.put(bean.getClass(), objectName);
-        } catch (InstanceAlreadyExistsException | MBeanRegistrationException | NotCompliantMBeanException |
-                MalformedObjectNameException e) {
+            String domain = "org.example.labwork3";
+            ObjectName objectName = new ObjectName(domain + ":type=" + beanName);
+            
+            MBeanServer mBeanServer = ManagementFactory.getPlatformMBeanServer();
+            
+            if (mBeanServer.isRegistered(objectName)) {
+                mBeanServer.unregisterMBean(objectName);
+            }
+            
+        
+            mBeanServer.registerMBean(bean, objectName);
+            beanMap.put(bean, objectName);
+            
+            System.out.println("Successfully registered MBean: " + objectName);
+        } catch (Exception e) {
+            System.err.println("Failed to register MBean: " + beanName);
             e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 
-    public void unregisterBean(Object bean){
-        if (!beanMap.containsKey(bean.getClass())) {
-            throw new IllegalArgumentException("Specified bean is not registered.");
-        }
+    public static void unregisterBean(Object bean) {
         try {
-            ObjectName objectName = beanMap.get(bean.getClass());
+            ObjectName objectName = beanMap.get(bean);
             if (objectName != null) {
                 ManagementFactory.getPlatformMBeanServer().unregisterMBean(objectName);
+                beanMap.remove(bean);
+                System.out.println("Successfully unregistered MBean: " + objectName);
             }
-        } catch (InstanceNotFoundException | MBeanRegistrationException e) {
+        } catch (Exception e) {
+            System.err.println("Failed to unregister MBean: " + bean.getClass().getSimpleName());
             e.printStackTrace();
         }
     }

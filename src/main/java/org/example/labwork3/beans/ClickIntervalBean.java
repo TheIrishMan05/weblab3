@@ -4,7 +4,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import jakarta.enterprise.context.ApplicationScoped;
 
 @ApplicationScoped
-public class ClickIntervalBean implements ClickIntervalMBean {
+public class ClickIntervalBean implements ClickIntervalBeanMBean {
     private final AtomicLong lastClickTime = new AtomicLong(0);
     private final AtomicLong sumIntervals = new AtomicLong(0);
     private final AtomicLong countIntervals = new AtomicLong(0);

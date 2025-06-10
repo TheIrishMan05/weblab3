@@ -12,6 +12,7 @@ import org.example.labwork3.check.AreaChecker;
 import org.example.labwork3.database.PointService;
 import org.example.labwork3.models.Point;
 import org.primefaces.PrimeFaces;
+import jakarta.enterprise.inject.spi.CDI;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -26,9 +27,9 @@ import java.util.List;
 @ViewScoped
 public class PointBean implements Serializable {
     @Inject
-    AreaChecker checker;
+    transient AreaChecker checker;
     @Inject
-    PointService service;
+    transient PointService service;
     private double x = 0;
     private double y = 0;
     private double r = 2;
@@ -43,7 +44,7 @@ public class PointBean implements Serializable {
         if (session != null) {
             sessionId = session.getId();
         }
-        points = service.findBySessionId(sessionId);
+        points = getService().findBySessionId(sessionId);
         if (points == null) {
             points = new ArrayList<>();
         } else {
@@ -58,8 +59,8 @@ public class PointBean implements Serializable {
         point.setY(y);
         point.setR(r);
         point.setSessionId(sessionId);
-        if (checker.isValid(point)) {
-            point.setHit(checker.check(point));
+        if (getChecker().isValid(point)) {
+            point.setHit(getChecker().check(point));
             point.setTime(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
             point.setExecutionTime(System.currentTimeMillis() - time);
             PrimeFaces.current().executeScript(String.format("drawPoint(%f, %f, %f)", point.getX(), point.getY(), point.getR()));
@@ -74,8 +75,8 @@ public class PointBean implements Serializable {
         point.setY(y);
         point.setR(r);
         point.setSessionId(sessionId);
-        if (checker.isValid(point)) {
-            point.setHit(checker.check(point));
+        if (getChecker().isValid(point)) {
+            point.setHit(getChecker().check(point));
             point.setTime(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
             point.setExecutionTime(System.currentTimeMillis() - time);
             this.addPoint(point);
@@ -83,11 +84,10 @@ public class PointBean implements Serializable {
     }
 
     private void addPoint(Point point) {
-        service.insert(point);
+        getService().insert(point);
         points.add(0, point);
         this.point = point;
     }
-
 
     private HttpSession getCurrentSession() {
         FacesContext context = FacesContext.getCurrentInstance();
@@ -98,5 +98,17 @@ public class PointBean implements Serializable {
         }
     }
 
+    private AreaChecker getChecker() {
+        if (checker == null) {
+            checker = CDI.current().select(AreaChecker.class).get();
+        }
+        return checker;
+    }
 
+    private PointService getService() {
+        if (service == null) {
+            service = CDI.current().select(PointService.class).get();
+        }
+        return service;
+    }
 }

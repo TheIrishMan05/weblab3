@@ -14,7 +14,7 @@ tasks.withType(JavaCompile).configureEach {
 }
 
 dependencies {
-    implementation files('lib/ojdbc17.jar')
+    implementation files('ojdbc17.jar')
     annotationProcessor "org.projectlombok:lombok:1.18.32"
     compileOnly "org.projectlombok:lombok:1.18.32"
     compileOnly 'jakarta.enterprise:jakarta.enterprise.cdi-api:4.0.1'
