@@ -15,10 +15,6 @@ public class MBeanRegisterUtil {
             
             MBeanServer mBeanServer = ManagementFactory.getPlatformMBeanServer();
             
-            if (mBeanServer.isRegistered(objectName)) {
-                mBeanServer.unregisterMBean(objectName);
-            }
-            
         
             mBeanServer.registerMBean(bean, objectName);
             beanMap.put(bean, objectName);
