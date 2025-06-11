@@ -35,12 +35,12 @@ public class Hit implements HitMBean,  NotificationBroadcaster{
         }
     }
 
-    public void updateHits(boolean isHit){
+    public void updateHits(boolean isHit, boolean isValid){
         hits.incrementAndGet();
         if(isHit) {
             successfulHits.incrementAndGet();
         }
-        checkForHitsOutOfBound(isHit);
+        checkForHitsOutOfBound(isValid);
     }
 
     @Override

@@ -4,11 +4,13 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.context.Initialized;
 import jakarta.enterprise.context.SessionScoped;
 import jakarta.enterprise.event.Observes;
+import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import lombok.extern.log4j.Log4j2;
 
 import org.example.labwork3.beans.ClickInterval;
 import org.example.labwork3.beans.Hit;
+import org.example.labwork3.check.AreaChecker;
 import org.example.labwork3.models.Point;
 import org.example.labwork3.utils.MBeanRegisterUtil;
 
@@ -27,6 +29,8 @@ public class PointService implements Repository<Point>, Serializable {
     private static final String PASSWORD = "Oracle_123";
     private static final String DB_URL = "jdbc:oracle:thin:@//db:1521/FREE";
 
+    @Inject
+    private AreaChecker checker;
     private final Hit hitMBean = new Hit();
     private final ClickInterval clickIntervalMBean = new ClickInterval();
     private AtomicInteger idGenerator = new AtomicInteger(getMaxIdFromDatabase());
@@ -151,7 +155,7 @@ public class PointService implements Repository<Point>, Serializable {
                 ps.setLong(7, point.getExecutionTime());
                 ps.setString(8, point.getSessionId());
                 ps.executeUpdate();
-                hitMBean.updateHits(point.isHit());
+                hitMBean.updateHits(point.isHit(), checker.isValid(point));
                 clickIntervalMBean.recordClick();
                 conn.commit();
             } catch (SQLException exception) {
