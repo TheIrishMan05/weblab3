@@ -30,7 +30,7 @@ public class AreaChecker implements Serializable, Checker<Point> {
         boolean validY = y >= MIN_Y && y <= MAX_Y;
         boolean validR = r >= MIN_R && r <= MAX_R;
 
-        return validX || validY || validR;
+        return validX && validY && validR;
     }
 
     private boolean checkRectangle(Point point) {
